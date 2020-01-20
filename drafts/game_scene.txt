@@ -1,0 +1,32 @@
+
+class Game_Scene : public Scene
+{
+
+	struct Ui_Image
+	{
+		Atlas::Slice * slice;
+		Point2f        position;
+		Anchor         anchor;
+	};
+
+	std::vector< std::shared_ptr< Food > > food;
+	
+	Texture2d 	background;
+	
+	Atlas 		user_interface_atlas;
+	Atlas 		food_atlas;
+	
+	Raster_Font font;
+	
+	int 		score;
+	
+	Timer 		timer;
+	
+	int 		lives;
+	
+	Ui_Image    menu_button;
+	Ui_Image    game_over;
+
+
+};
+
