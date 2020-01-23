@@ -1,25 +1,28 @@
-
-// Comentario
+/*
+ * PANCAKE CLASS
+ * Copyright © 2020+ Mariana Moreira
+ */
 
 #pragma once
 
 #include "Food.hpp"
 
-namespace example
+namespace flip
 {
 
 	class Pancake : public Food
 	{
 
-		static const int number_of_ascending_keyframes = 3;
-		static const int number_of_falling_keyframes   = 3;
+		static const int number_of_ascending_keyframes = 3;			///< Number of sprites with the ascending movement
+		static const int number_of_falling_keyframes   = 3;			///< Number of sprites with the falling movement
 
 	public:
 
 		Pancake(Atlas * atlas);
 
-
-		// set points pancakes
+		/**
+         * Sets how many points a pancake is worth
+         */
 		int get_points () override {
 			return 20;
 		}
