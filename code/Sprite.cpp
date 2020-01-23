@@ -12,7 +12,7 @@
 
 using namespace basics;
 
-namespace example
+namespace flip
 {
 
     Sprite::Sprite(Texture_2D * texture)

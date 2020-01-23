@@ -16,7 +16,7 @@
     #include <basics/Texture_2D>
     #include <basics/Vector>
 
-    namespace example
+    namespace flip
     {
 
         using basics::Canvas;
