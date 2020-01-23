@@ -1,11 +1,6 @@
 /*
  * GAME SCENE
- * Copyright © 2018+ Ángel Rodríguez Ballesteros
- *
- * Distributed under the Boost Software License, version  1.0
- * See documents/LICENSE.TXT or www.boost.org/LICENSE_1_0.txt
- *
- * angel.rodriguez@esne.edu
+ * Copyright © 2020+ Mariana Moreira
  */
 
 #ifndef GAME_SCENE_HEADER
@@ -27,7 +22,7 @@
     using namespace basics;
     using namespace std;
 
-    namespace example
+    namespace flip
     {
 
         using basics::Id;
@@ -38,18 +33,20 @@
 
         class Game_Scene : public basics::Scene
         {
+
             /**
-             * Representa el estado de la escena en su conjunto.
+             * Represents the different scene states
              */
             enum State
             {
                 LOADING,
+                PREPARE,
                 RUNNING,
                 ERROR
             };
 
             /**
-             * Representa el estado del juego cuando el estado de la escena es RUNNING.
+             * Represents the state of the game when the scene state is RUNNING
              */
             enum Gameplay_State
             {
@@ -59,33 +56,37 @@
                 GAME_OVER,
             };
 
-            static const int max_lives     = 3;
+            static const int max_lives              = 3;            ///< Maximum amount of lives a player can have
 
-            static const int food_creation_impulse  = 1500;
-            static const int food_creation_bottom_y =  -50;     // first position where generated
-            static const int food_touch_impulse     = 1000;
+            static const int food_creation_impulse  = 1500;         ///< Impulse of the food item when it is created
+            static const int food_creation_bottom_y =  -50;         ///< Position of y of the food element when it is created
+            static const int food_touch_impulse     = 1000;         ///< Impulse of the food item when the player touches one
 
-            static const int gravity_force          =  -30;       ///< Valor de la fuerza de gravedad estimado empíricamente
+            static const int gravity_force          =  -30;         ///< Value of empirically estimated force of gravity
 
-            static const int min_pancakes = 10;
-            static const int max_pancakes = 20;
+            static const int min_pancakes = 10;                     ///< Minimum amount of pancakes to calculate when a strawberry appears
+            static const int max_pancakes = 20;                     ///< Maximum amount of pancakes to calculate when a strawberry appears
 
-
-            static const char * background_path;
-            static const char * food_atlas_path;
+            static const char * background_path;                    ///< Path of the background texture
+            static const char * prepare_path;                       ///< Path of the get ready texture
+            static const char * food_atlas_path;                    ///< Path of the food atlas
 
         private:
 
-            State          state;                               ///< Estado de la escena.
-            Gameplay_State gameplay;                            ///< Estado del juego cuando la escena está RUNNING.
-            bool           suspended;                           ///< true cuando la escena está en segundo plano y viceversa.
+            State          state;                                   ///< Scene state
+            Gameplay_State gameplay;                                ///< Game state when the scene is RUNNING.
 
-            float          canvas_width;                        ///< Ancho de la resolución virtual usada para dibujar.
-            float          canvas_height;                       ///< Alto  de la resolución virtual usada para dibujar.
+            bool           suspended;                               ///< true - when the scene is working on background and vice versa
 
-            int            launched_pancakes = 0;
-            int            limit_pancakes    = 0;
+            float          canvas_width;                            ///< Width of the window where the scene is drawn
+            float          canvas_height;                           ///< Height of the window where the scene is drawn
 
+            int            launched_pancakes = 0;                   ///< Amount of pancakes already on the screen
+            int            limit_pancakes    = 0;                   ///< Limit of pancakes that need be launched for a strawberry to appear
+
+            /**
+             *  Represents the ui image structure
+             */
             struct Ui_Image
             {
                 Atlas::Slice * slice;
@@ -93,37 +94,38 @@
                 Anchor         anchor;
             };
 
-            vector< std::shared_ptr< Food > > food;
+            // transformar em array para a pagina ajuda                 /// ????????????????
+            shared_ptr< Texture_2D > background;                    ///< Texture with the background image
+            shared_ptr< Texture_2D > prepare;                       ///< Texture with the get ready image
 
-            shared_ptr< Texture_2D > background;
+            vector< std::shared_ptr< Food > > food;                 ///< Array with all the food elements
 
-            unique_ptr< Atlas > user_interface_atlas;
-            unique_ptr< Atlas > food_atlas;
+            // put in only one atlas
+            unique_ptr< Atlas > user_interface_atlas;               ///< Atlas that contains the images of the user interface
+            unique_ptr< Atlas > food_atlas;                         ///< Atlas that contains the images of the food elements
 
-            unique_ptr< Raster_Font > font;
+            unique_ptr< Raster_Font > font;                         ///< Atlas that contains the images of the food elements
 
-            int 		score;
+            Timer       timer;                                      ///< Timer used to measure time intervals
 
-            Timer       timer;                               ///< Cronómetro usado para medir intervalos de tiempo
+            int 		score;                                      ///< Current game score
+            int 		lives;                                      ///< Amount of lives the player current has
 
-            int 		lives;
-
-            Ui_Image    menu_button;
-            Ui_Image    game_over;
+            Ui_Image    life_icon;                                  ///< Life image
+            Ui_Image    pause_button;                               ///< Pause button image
+            Ui_Image    game_over;                                  ///< Game over image
 
 
         public:
 
             /**
-             * Solo inicializa los atributos que deben estar inicializados la primera vez, cuando se
-             * crea la escena desde cero.
+             * Only initialize the attributes that must be initialized the first time when the scene is created from scratch.
              */
             Game_Scene();
 
             /**
-             * Este método lo llama Director para conocer la resolución virtual con la que está
-             * trabajando la escena.
-             * @return Tamaño en coordenadas virtuales que está usando la escena.
+             * This method calls the Directory to know the screen resolution of the scene
+             * @return - size in coordinates that the scene is using
              */
             basics::Size2u get_view_size () override
             {
@@ -131,67 +133,81 @@
             }
 
             /**
-             * Aquí se inicializan los atributos que deben restablecerse cada vez que se inicia la escena.
+             * Initiate all attributes that need to be loaded every time this scene starts
              * @return
              */
             bool initialize () override;
 
             /**
-             * Este método lo invoca Director automáticamente cuando el juego pasa a segundo plano.
+             * This method calls the Directory when the scene changes to second plan
              */
-            void suspend () override;
+            void suspend () override
+            {
+                suspended = true;
+            }
 
             /**
-             * Este método lo invoca Director automáticamente cuando el juego pasa a primer plano.
+             * This method calls the Directory when the scene changes to first plan
              */
-            void resume () override;
+            void resume () override
+            {
+                suspended = false;
+            }
 
             /**
-             * Este método se invoca automáticamente una vez por fotograma cuando se acumulan
-             * eventos dirigidos a la escena.
+             * This method is automatically invoked once per frame when events directed to the scene are accumulated.
              */
             void handle (basics::Event & event) override;
 
             /**
-             * Este método se invoca automáticamente una vez por fotograma para que la escena
-             * actualize su estado.
+             * This method is automatically invoked once every frame so the scene can update its state
              */
             void update (float time) override;
 
             /**
-             * Este método se invoca automáticamente una vez por fotograma para que la escena
-             * dibuje su contenido.
+             * This method is automatically invoked once every frame so the scene draws its content
              */
             void render (Graphics_Context::Accessor & context) override;
 
         private:
 
             /**
-             * En este método se cargan las texturas (una cada fotograma para facilitar que la
-             * propia carga se pueda pausar cuando la aplicación pasa a segundo plano).
+             * This method loads the textures (one each frame to facilitate, so that the load itself can be paused when the application goes to the background)
              */
             void load_textures ();
 
             /**
-             * En este método se crean los sprites cuando termina la carga de texturas.
+             * This method calls all the sprites creating functions after all the textures are loaded
              */
             void create_sprites ();
 
             /**
-             * Cuando se ha reiniciado el juego y el usuario toca la pantalla por primera vez se
-             * pone la bola en movimiento en una dirección al azar.
+             * This method creates the sprites of the pancakes
+             */
+            void create_pancake ();
+
+            /**
+             * This method creates the sprites of the strawberries
+             */
+            void create_strawberry ();
+
+            /**
+             * Draws the texture with the get ready message while the state of the scene is PREPARE
+             */
+            void get_ready();
+
+            /**
+             * Changes the gamestate to PLAYING and the game starts
              */
             void start_playing ();
 
             /**
-             * Actualiza el estado del juego cuando el estado de la escena es RUNNING.
+             * The game starts
+             * The food elements start to show
              */
             void run_simulation (float time);
 
-            void create_pancake ();
-
         };
-
     }
 
 #endif

@@ -19,14 +19,16 @@
 using namespace basics;
 using namespace std;
 
-namespace example
+namespace flip
 {
 
     const char * Game_Scene::background_path = "game-scene/background.png";
+    //const char * Game_Scene::prepare_path    = "game-scene/get_ready.png";
     const char * Game_Scene::food_atlas_path = "game-scene/food.sprites";
     //const char * Game_Scene::food_atlas_path = "game-scene/pancakes.sprites";
 
-    // ---------------------------------------------------------------------------------------------
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     Game_Scene::Game_Scene()
     {
@@ -37,18 +39,17 @@ namespace example
         canvas_width  = 1280;
         canvas_height =  720;
 
-        // Se inicia la semilla del generador de números aleatorios:
-
+        // Starts the random number generator seed
         srand (unsigned(time(nullptr)));
 
-        // Se inicializan otros atributos:
-
+        // Other attributes are initialized
         initialize ();
 
         suspended = true;
     }
 
-    // ---------------------------------------------------------------------------------------------
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
     // Algunos atributos se inicializan en este método en lugar de hacerlo en el constructor porque
     // este método puede ser llamado más veces para restablecer el estado de la escena y el constructor
     // solo se invoca una vez.
@@ -59,60 +60,55 @@ namespace example
         suspended = false;
         gameplay  = UNINITIALIZED;
 
-        score = 0;
-        lives = max_lives;
+        score     = 0;
+        lives     = max_lives;
 
         return true;
     }
 
-    // ---------------------------------------------------------------------------------------------
 
-    void Game_Scene::suspend ()
-    {
-        suspended = true;               // Se marca que la escena ha pasado a primer plano
-    }
-
-    // ---------------------------------------------------------------------------------------------
-
-    void Game_Scene::resume ()
-    {
-        suspended = false;              // Se marca que la escena ha pasado a segundo plano
-    }
-
-    // ---------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     void Game_Scene::handle (Event & event)
     {
-        if (state == RUNNING)               // Se descartan los eventos cuando la escena está LOADING
+        // Events are discarded when the scene is LOADING
+        if (state == RUNNING)
         {
             if (gameplay == WAITING_TO_START)
             {
-                start_playing ();           // Se empieza a jugar cuando el usuario toca la pantalla por primera vez
+                start_playing ();           // Starts playing when the user touches the screen for the first time
             }
             else switch (event.id)
             {
-                case ID(touch-started):     // El usuario toca la pantalla
+                case ID(touch-started):     // The user touches the screen
                 {
-                    // Se determina dónde se ha tocado en la pantalla:
+                    // Determines the position where the screen has been touched
+                    Point2f touch_position{ *event[ID(x)].as< var::Float > (),
+                                            *event[ID(y)].as< var::Float > () };
 
-                    Point2f touch_position{ *event[ID(x)].as< var::Float > (), *event[ID(y)].as< var::Float > () };
-
-                    // Se comprueba si el punto donde se ha tocado queda dentro de alguna comida:
-
+                    // Checks if the point where the user touched is inside a food element
                     for (auto & item : food)
                     {
                         if (item->contains_point (touch_position))
                         {
+                            // Adds another impulse to the food element
                             item->apply_impulse (food_touch_impulse);
 
-                            // score total
-                            score += item->get_points();
+                            // Adds to the score total
+                                //score += item->get_points();
                         }
                     }
 
-                    // Esto es para hacer pruebas. Se debe quitar:
 
-                    create_pancake ();
+                    // ---------------------------------------------------------
+                    // REMOVER
+                    // Esto es para hacer pruebas. Se debe quitar:
+                        create_pancake ();
+
+                    // VERIFICAR SE O MENU CONTEM O TOUCH POSITION
+                    // SE CLICAR NO MENU PAUSA
+                        //director.run_scene (shared_ptr< Scene >(new Pause_Scene));
+                    // ---------------------------------------------------------
 
                     break;
                 }
@@ -120,66 +116,77 @@ namespace example
         }
     }
 
-    // ---------------------------------------------------------------------------------------------
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     void Game_Scene::update (float time)
     {
         if (!suspended) switch (state)
         {
             case LOADING: load_textures  ();     break;
+            case PREPARE: get_ready      ();     break;
             case RUNNING: run_simulation (time); break;
             case ERROR:   break;
         }
     }
 
-    // ---------------------------------------------------------------------------------------------
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     void Game_Scene::render (Graphics_Context::Accessor & context)
     {
         if (!suspended)
         {
-            // El canvas se puede haber creado previamente, en cuyo caso solo hay que pedirlo:
-
+            // The canvas may have been created previously, in which case you just have to called it
             Canvas * canvas = context->get_renderer< Canvas > (ID(canvas));
 
-            // Si no se ha creado previamente, hay que crearlo una vez:
-
+            // If the canvas doesn't exist then is necessary to create it
             if (!canvas)
             {
                  canvas = Canvas::create (ID(canvas), context, {{ unsigned(canvas_width), unsigned(canvas_height) }});
             }
 
-            // Si el canvas se ha podido obtener o crear, se puede dibujar con él:
-
+            // If the canvas is loaded or created then it is drawn
             if (canvas)
             {
                 if (state == RUNNING) canvas->set_clear_color (0.f, 0.f, 0.f); else canvas->set_clear_color (1.f, 0.f, 0.f);
 
                 canvas->clear ();
 
-                if (state == RUNNING)
+                if (state == RUNNING || state == PREPARE)
                 {
+                    // Draws the background image
                     canvas->fill_rectangle ({ 0.f, 0.f }, { canvas_width, canvas_height }, background.get (), Anchor::BOTTOM | Anchor::LEFT);
 
+                    // Draws the food elements
                     for (auto & item : food)
                     {
                         item->render (*canvas);
                     }
+
+                    // ---------------------------------------------------------
                     // DESENHAR
-                    // MENU PAUSA
-                    // VIDA
-                    // TIMER
+                        // BOTAO PAUSA
+                        // VIDA
+                        // TIMER
+                    // ---------------------------------------------------------
+
+                    if (state == PREPARE)
+                    {
+                        // ---------------------------------------------------------
+                        // DESENHAR TEXTURA "get ready"
+                        // ---------------------------------------------------------
+                    }
                 }
             }
         }
     }
 
-    // ---------------------------------------------------------------------------------------------
-    // En este método solo se carga una textura por fotograma para poder pausar la carga si el
-    // juego pasa a segundo plano inesperadamente. Otro aspecto interesante es que la carga no
-    // comienza hasta que la escena se inicia para así tener la posibilidad de mostrar al usuario
-    // que la carga está en curso en lugar de tener una pantalla en negro que no responde durante
-    // un tiempo.
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // In this method, only one texture is loaded per frame to pause the load if the game changes to second plane unexpectedly
+    // Another  aspect is that the load doesn't start until the scene starts to have the possibility to show the user
+    // that the load is in progress instead of having a black screen that does not respond during a time.
 
     void Game_Scene::load_textures ()
     {
@@ -187,73 +194,101 @@ namespace example
 
         if (context)
         {
+            // ---------------------------------------------------------
+            // hpp : shared_ptr<Texture_2D> pages[3];       // ??????????????????????
 
-            // ajustar aspect ration -- ex asteroids
+            // AJUSTAR ASPECT RATION -- EX ASTEROIDS
+            // ---------------------------------------------------------
 
-            // Se carga la siguiente textura (textures.size() indica cuántas llevamos cargadas):
+
+            // Loads the background texture
             background = Texture_2D::create (ID(background), context, background_path);
+
+            // TEXTURA get ready
+            // The get ready texture is loaded
+                //prepare = Texture_2D::create (ID(prepare), context, prepare_path);
 
             // Se comprueba si la textura se ha podido cargar correctamente:
             if (background) context->add (background); else { state = ERROR; return; }
 
-            // ---
 
 
-            // TEXTURE - mudar food atlas para geral
-            // menu pausa
-            // vida
-            // pancakes
-            // bonus
+            // ---------------------------------------------------------
+            // TEXTURA - MUDAR FOOD ATLAS PARA UM GERAL
+                // BOTAO PAUSA
+                // VIDA
+                // PANQUECAS
+                // MORANGO
+            // ---------------------------------------------------------
 
-            // food texture
+            // Loads the food atlas
             food_atlas.reset (new Atlas(food_atlas_path, context));
 
             if (!food_atlas->good ()) { state = ERROR; return; }
 
-            // ---
 
-            // raster font - numeros timer
-
-
-            // ---
+            // ---------------------------------------------------------
+            // RASTER FONT - PARA OS NUMEROS DO TIMER
+            // ---------------------------------------------------------
 
             create_sprites();
+
+            state = PREPARE;
+            timer.reset();
+        }
+    }
+
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    void Game_Scene::get_ready()
+    {
+        // The screen shows the get ready message for a few seconds
+        if (timer.get_elapsed_seconds () > 2.f)
+        {
+            timer.reset ();
 
             state = RUNNING;
         }
     }
 
-    // ---------------------------------------------------------------------------------------------
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     void Game_Scene::start_playing ()
     {
         gameplay = PLAYING;
     }
 
-    // ---------------------------------------------------------------------------------------------
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     void Game_Scene::run_simulation (float time)
     {
-        // avoid the 1st item to jump too fast
+        // Avoids that the 1st item will jump too fast
         if (time > 0.25F) return;
 
-        // Se actualiza la posición de toda la comida:
+        // The position of the whole food elemetns is updated
         for (auto & item : food)
         {
-            item->apply_force (float(gravity_force));
+            item->apply_force (float(gravity_force));       // Applies the gravity pull downwards
             item->update      (time);
         }
 
+        // ---------------------------------------------------------
+        // CREAR BONUS
+        // SE O LIMITE DE PANQUECAS NO ECRA FOR ATINGIDO GERA UM MORANGO
+        // RESET DO LIMITE DE PANQUECAS
 
-        // create bonus
-        // if limit_pancakes >= ....
-            // create_strawberry();
-            // launched_pancakes = 0;
+        /* if (limit_pancakes >= ....)
+        {
+            create_strawberry();
+            launched_pancakes = 0;
+        }
+        */
+        // ---------------------------------------------------------
 
-
-        // VERIFICACAO
-        // Se comprueba si la comida llega a la parte inferior de la pantalla:
-        //
+        // Checks if the food reached the bottom of the screen
         bool processed_all_items = false;
 
         while (!processed_all_items)
@@ -272,40 +307,44 @@ namespace example
 
                     food.erase (item);
 
-                    // HACER ALGUNA OTRA COSA CUANDO LA COMIDA LLEGA ABAJO
+                    // ---------------------------------------------------------
+                    // REMOVER VIDA
+                    // ---------------------------------------------------------
 
                     break;
                 }
             }
         }
-        //
     }
 
 
-    // ---------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     void Game_Scene::create_sprites ()
     {
-        // Se crean y configuran los sprites del fondo:
-
-        // panquecas
+        // Creates one pancake
         create_pancake();
 
-        // limit_pancakes = rand() % (max - min) + min
+        // ---------------------------------------------------------
+        // LIMITE DE PANQUECAS PARA MORANGO
+            // Sets the limit for how many pancakes need to show until a strawberry appears
+            //limit_pancakes = rand() % (max - min) + min
 
+        // BOTAO PAUSA
+            // Creates the pause menu button
 
-        // menu pausa
+        // TIMER
+            // Creates the game timer
 
-        // timer
-
-        // vidas
+        // VIDAS
+            // Creates the player lives images
+        // ---------------------------------------------------------
     }
 
 
-    // ---------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-    // cria uma panqueca
     void Game_Scene::create_pancake()
     {
         shared_ptr< Pancake > pancake(new Pancake(food_atlas.get ()));
@@ -314,8 +353,6 @@ namespace example
         float y = float(food_creation_bottom_y);
 
         pancake->set_position ({ x, y });
-        pancake->set_scale ( 2.f );
-
         pancake->apply_impulse (float(food_creation_impulse));
 
         food.push_back (pancake);
@@ -324,12 +361,23 @@ namespace example
     }
 
 
-    // bonus
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // creates one strawberry
+
     void Game_Scene::create_strawberry() {
 
+        /*
+        shared_ptr< Strawberry > strawberry(new Strawberry(food_atlas.get ()));
+
+        float x = float(rand () % int(canvas_width));
+        float y = float(food_creation_bottom_y);
+
+        strawberry->set_position ({ x, y });
+        strawberry->apply_impulse (float(food_creation_impulse));
+        food.push_back (strawberry);
+
+        // Calculates a new limit for the amount of pancakes launched to generate a new straberry
         // limit_pancakes = rand() % (max - min) + min
-
-        // crear bonus elemento
+        */
     }
-
 }
