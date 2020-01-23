@@ -13,12 +13,13 @@
 #include <basics/Graphics_Resource_Cache>
 #include <basics/opengles/Context>
 #include <basics/Window>
-#include "Intro_Scene.hpp"
 #include <basics/opengles/Canvas_ES2>
 #include <basics/opengles/OpenGL_ES2>
 
+#include "Intro_Scene.hpp"
+
 using namespace basics;
-using namespace example;
+using namespace flip;
 using namespace std;
 
 int main ()
