@@ -1,64 +1,66 @@
 /*
  * MENU SCENE
- * Copyright © 2018+ Ángel Rodríguez Ballesteros
- *
- * Distributed under the Boost Software License, version  1.0
- * See documents/LICENSE.TXT or www.boost.org/LICENSE_1_0.txt
- *
- * angel.rodriguez@esne.edu
+ * Copyright © 2020+ Mariana Moreira
  */
 
-#include "Menu_Scene.hpp"
-#include "Game_Scene.hpp"
 #include <basics/Canvas>
 #include <basics/Director>
 #include <basics/Transformation>
 
+#include "Menu_Scene.hpp"
+#include "Game_Scene.hpp"
+
 using namespace basics;
 using namespace std;
 
-namespace example
+namespace flip
 {
+    const char * Menu_Scene::background_path = "game-scene/background.png";
+
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     Menu_Scene::Menu_Scene()
     {
-        state         = LOADING;
+        state         = LOADING;            // The scene starts with the LOADING state
         suspended     = true;
         canvas_width  = 1280;
         canvas_height =  720;
     }
 
-    // ---------------------------------------------------------------------------------------------
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     bool Menu_Scene::initialize ()
     {
         for (auto & option : options)
         {
-            option.is_pressed = false;
+            option.is_pressed = false;      // All options are set as not pressed
         }
 
         return true;
     }
 
-    // ---------------------------------------------------------------------------------------------
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     void Menu_Scene::handle (basics::Event & event)
     {
-        if (state == READY)                     // Se descartan los eventos cuando la escena está LOADING
+        // Events are discarded when the scene is LOADING
+        if (state == READY)
         {
             switch (event.id)
             {
-                case ID(touch-started):         // El usuario toca la pantalla
+                case ID(touch-started):         // The user touches the screen
                 case ID(touch-moved):
                 {
-                    // Se determina qué opción se ha tocado:
+                    // Determines the position where the screen has been touched
+                    Point2f touch_location = { *event[ID(x)].as< var::Float > (),
+                                               *event[ID(y)].as< var::Float > () };
 
-                    Point2f touch_location = { *event[ID(x)].as< var::Float > (), *event[ID(y)].as< var::Float > () };
                     int     option_touched = option_at (touch_location);
 
-                    // Solo se puede tocar una opción a la vez (para evitar selecciones múltiples),
-                    // por lo que solo una se considera presionada (el resto se "sueltan"):
-
+                    // Only one option can be touched at a time (to avoid multiple selections), so only one is considered pressed (the rest are "released")
                     for (int index = 0; index < number_of_options; ++index)
                     {
                         options[index].is_pressed = index == option_touched;
@@ -66,21 +68,29 @@ namespace example
 
                     break;
                 }
-
-                case ID(touch-ended):           // El usuario deja de tocar la pantalla
+                case ID(touch-ended):           // The user stops touching the screen
                 {
-                    // Se "sueltan" todas las opciones:
-
+                    // All options are "released"
                     for (auto & option : options) option.is_pressed = false;
 
-                    // Se determina qué opción se ha dejado de tocar la última y se actúa como corresponda:
-
-                    Point2f touch_location = { *event[ID(x)].as< var::Float > (), *event[ID(y)].as< var::Float > () };
+                    // It determines which option was the last the user has stopped touching and acts accordingly
+                    Point2f touch_location = { *event[ID(x)].as< var::Float > (),
+                                               *event[ID(y)].as< var::Float > () };
 
                     if (option_at (touch_location) == PLAY)
                     {
-                        director.run_scene (shared_ptr< Scene >(new Game_Scene));
+                        director.run_scene (shared_ptr< Scene > (new Game_Scene));         // goes to the game scene
                     }
+
+                    /*else if (option_at (touch_location) == HELP)
+                    {
+                        director.run_scene (shared_ptr< Scene > (new Help_Scene));         // goes to the help page
+                    }
+                    else if (option_at (touch_location) == CREDITS)
+                    {
+                        director.run_scene (shared_ptr< Scene > (new Credits_Scene));      // goes to the credits page
+                    }
+                     */
 
                     break;
                 }
@@ -88,7 +98,8 @@ namespace example
         }
     }
 
-    // ---------------------------------------------------------------------------------------------
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     void Menu_Scene::update (float time)
     {
@@ -98,16 +109,18 @@ namespace example
 
             if (context)
             {
-                // Se carga el atlas:
+                // Loads the background texture
+                background = Texture_2D::create (ID(background), context, background_path);
 
+                context->add(background);
+
+                // Loads the menu buttons atlas
                 atlas.reset (new Atlas("menu-scene/buttons.sprites", context));
 
-                // Si el atlas se ha podido cargar el estado es READY y, en otro caso, es ERROR:
-
+                // If the atlas could be loaded then the state is READY if not the is ERROR
                 state = atlas->good () ? READY : ERROR;
 
-                // Si el atlas está disponible, se inicializan los datos de las opciones del menú:
-
+                // If the atlas is available, the menu option data is initialized
                 if (state == READY)
                 {
                     configure_options ();
@@ -116,50 +129,49 @@ namespace example
         }
     }
 
-    // ---------------------------------------------------------------------------------------------
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     void Menu_Scene::render (Graphics_Context::Accessor & context)
     {
         if (!suspended)
         {
-            // El canvas se puede haber creado previamente, en cuyo caso solo hay que pedirlo:
-
+            // The canvas may have been created previously, in which case you just have to called it
             Canvas * canvas = context->get_renderer< Canvas > (ID(canvas));
 
-            // Si no se ha creado previamente, hay que crearlo una vez:
-
+            // If the canvas doesn't exist then is necessary to create it
             if (!canvas)
             {
                  canvas = Canvas::create (ID(canvas), context, {{ canvas_width, canvas_height }});
             }
 
-            // Si el canvas se ha podido obtener o crear, se puede dibujar con él:
-
+            // If the canvas is loaded or created then it is drawn
             if (canvas)
             {
+                canvas->set_clear_color (255, 255, 255);
                 canvas->clear ();
 
                 if (state == READY)
                 {
-                    // Se dibuja el slice de cada una de las opciones del menú:
+                    // Draws the background
+                    canvas->fill_rectangle ({ 0.f, 0.f }, { (float) canvas_width, (float) canvas_height }, background.get (), Anchor::BOTTOM | Anchor::LEFT);
 
+                    // The slice of each of the menu options is drawn
                     for (auto & option : options)
                     {
                         canvas->set_transform
                         (
                             scale_then_translate_2d
                             (
-                                  option.is_pressed ? 0.75f : 1.f,              // Escala de la opción
-                                { option.position[0], option.position[1] }      // Traslación
+                                  option.is_pressed ? 0.75f : 1.f,              // Scales the option
+                                { option.position[0], option.position[1] }      // Translation
                             )
                         );
 
                         canvas->fill_rectangle ({ 0.f, 0.f }, { option.slice->width, option.slice->height }, option.slice, CENTER | TOP);
                     }
 
-                    // Se restablece la transformación aplicada a las opciones para que no afecte a
-                    // dibujos posteriores realizados con el mismo canvas:
-
+                    // The transformation applied to the options is restored so it does not affect subsequent drawings made with the same canvas
                     canvas->set_transform (Transformation2f());
                 }
             }
@@ -170,26 +182,20 @@ namespace example
 
     void Menu_Scene::configure_options ()
     {
-        // Se asigna un slice del atlas a cada opción del menú según su ID:
-
+        // A slice of the atlas is assigned to each menu option according to its ID
         options[PLAY   ].slice = atlas->get_slice (ID(play)   );
-        options[SCORES ].slice = atlas->get_slice (ID(scores) );
         options[HELP   ].slice = atlas->get_slice (ID(help)   );
         options[CREDITS].slice = atlas->get_slice (ID(credits));
 
-        // Se calcula la altura total del menú:
-
+        // The total height of the menu is calculated
         float menu_height = 0;
 
         for (auto & option : options) menu_height += option.slice->height;
 
-        // Se calcula la posición del borde superior del menú en su conjunto de modo que
-        // quede centrado verticalmente:
+        // The position of the top edge of the menu as a whole is calculated so that it is centered vertically
+        float option_top = canvas_height / 2.f + menu_height / 2.f - 50.f;
 
-        float option_top = canvas_height / 2.f + menu_height / 2.f;
-
-        // Se establece la posición del borde superior de cada opción:
-
+        // The position of the top edge of each option is set
         for (unsigned index = 0; index < number_of_options; ++index)
         {
             options[index].position = Point2f{ canvas_width / 2.f, option_top };
@@ -197,8 +203,7 @@ namespace example
             option_top -= options[index].slice->height;
         }
 
-        // Se restablece la presión de cada opción:
-
+        // The pressure of each option is restored
         initialize ();
     }
 
