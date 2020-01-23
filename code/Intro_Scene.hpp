@@ -1,23 +1,19 @@
 /*
  * INTRO SCENE
- * Copyright © 2018+ Ángel Rodríguez Ballesteros
- *
- * Distributed under the Boost Software License, version  1.0
- * See documents/LICENSE.TXT or www.boost.org/LICENSE_1_0.txt
- *
- * angel.rodriguez@esne.edu
+ * Copyright © 2020+ Mariana Moreira
  */
 
 #ifndef INTRO_SCENE_HEADER
 #define INTRO_SCENE_HEADER
 
     #include <memory>
+
     #include <basics/Canvas>
     #include <basics/Scene>
     #include <basics/Texture_2D>
     #include <basics/Timer>
 
-    namespace example
+    namespace flip
     {
 
         using basics::Timer;
@@ -29,7 +25,7 @@
         {
 
             /**
-             * Representa el estado de la escena en su conjunto.
+             * Represents the different scene states
              */
             enum State
             {
@@ -44,20 +40,24 @@
 
         private:
 
-            State    state;                                     ///< Estado de la escena.
-            bool     suspended;                                 ///< true cuando la escena está en segundo plano y viceversa.
+            State    state;                                     ///< Scene state
 
-            unsigned canvas_width;                              ///< Ancho de la resolución virtual usada para dibujar.
-            unsigned canvas_height;                             ///< Alto  de la resolución virtual usada para dibujar.
+            bool     suspended;                                 ///< true - when the scene is working on background and vice versa
 
-            Timer    timer;                                     ///< Cronómetro usado para medir intervalos de tiempo.
+            unsigned canvas_width;                              ///< Width of the window where the scene is drawn
+            unsigned canvas_height;                             ///< Height of the window where the scene is drawn
 
-            float    opacity;                                   ///< Opacidad de la textura.
+            Timer    timer;                                     ///< Timer used to measure time intervals
 
-            std::shared_ptr < Texture_2D > title_texture;       /// texture with title image
+            float    opacity;                                   ///< Opacity of the texture
+
+            std::shared_ptr<Texture_2D> title_texture;          ///< Texture with the title image
 
         public:
 
+            /**
+             * Sets the initial values of the scene when it is first loaded
+             */
             Intro_Scene()
             {
                 state         = UNINITIALIZED;
@@ -67,9 +67,8 @@
             }
 
             /**
-             * Este método lo llama Director para conocer la resolución virtual con la que está
-             * trabajando la escena.
-             * @return Tamaño en coordenadas virtuales que está usando la escena.
+             * This method calls the Directory to know the screen resolution of the scene
+             * @return - size in coordinates that the scene is using
              */
             basics::Size2u get_view_size () override
             {
@@ -77,13 +76,13 @@
             }
 
             /**
-             * Aquí se inicializan los atributos que deben restablecerse cada vez que se inicia la escena.
+             * Initiate all attributes that need to be loaded every time this scene starts
              * @return
              */
             bool initialize () override;
 
             /**
-             * Este método lo invoca Director automáticamente cuando el juego pasa a segundo plano.
+             * This method calls the Directory when the scene changes to second plan
              */
             void suspend () override
             {
@@ -91,7 +90,7 @@
             }
 
             /**
-             * Este método lo invoca Director automáticamente cuando el juego pasa a primer plano.
+             * This method calls the Directory when the scene changes to first plan
              */
             void resume () override
             {
@@ -99,26 +98,23 @@
             }
 
             /**
-             * Este método se invoca automáticamente una vez por fotograma para que la escena
-             * actualize su estado.
+             * This method is invoked automatically once every frame so the scene can update its state
              */
             void update (float time) override;
 
             /**
-             * Este método se invoca automáticamente una vez por fotograma para que la escena
-             * dibuje su contenido.
+             * This method is invoked automatically once every frame so the scene draws its content
              */
             void render (Graphics_Context::Accessor & context) override;
 
         private:
 
-            void update_loading    ();
-            void update_fading_in  ();
-            void update_waiting    ();
-            void update_fading_out ();
+            void update_loading();                 ///< Loads the content of the scene
+            void update_fading_in();               ///< Applies a fade in effect
+            void update_waiting();                 ///< Prevents the scene from changing for a time
+            void update_fading_out();              ///< Applies a fade out effect
 
         };
-
     }
 
 #endif

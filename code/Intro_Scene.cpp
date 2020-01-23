@@ -1,25 +1,21 @@
 /*
  * INTRO SCENE
- * Copyright © 2018+ Ángel Rodríguez Ballesteros
- *
- * Distributed under the Boost Software License, version  1.0
- * See documents/LICENSE.TXT or www.boost.org/LICENSE_1_0.txt
- *
- * angel.rodriguez@esne.edu
+ * Copyright © 2020+ Mariana Moreira
  */
+
+#include <basics/Canvas>
+#include <basics/Director>
 
 #include "Intro_Scene.hpp"
 #include "Menu_Scene.hpp"
-#include <basics/Canvas>
-#include <basics/Director>
 
 using namespace basics;
 using namespace std;
 
-namespace example
+namespace flip
 {
 
-    // ---------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     bool Intro_Scene::initialize ()
     {
@@ -37,7 +33,8 @@ namespace example
         return true;
     }
 
-    // ---------------------------------------------------------------------------------------------
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     void Intro_Scene::update (float time)
     {
@@ -51,29 +48,27 @@ namespace example
         }
     }
 
-    // ---------------------------------------------------------------------------------------------
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     void Intro_Scene::render (Graphics_Context::Accessor & context)
     {
         if (!suspended)
         {
-            // El canvas se puede haber creado previamente, en cuyo caso solo hay que pedirlo:
-
+            // The canvas may have been created previously, in which case you just have to called it
             Canvas * canvas = context->get_renderer< Canvas > (ID(canvas));
 
-            // Si no se ha creado previamente, hay que crearlo una vez:
-
+            // If the canvas doesn't exist then is necessary to create it
             if (!canvas)
             {
                  canvas = Canvas::create (ID(canvas), context, {{ canvas_width, canvas_height }});
             }
 
-            // Si el canvas se ha podido obtener o crear, se puede dibujar con él:
-
+            // If the canvas is loaded or created then it is drawn
             if (canvas)
             {
+                canvas->set_clear_color (255, 255, 255);
                 canvas->clear ();
-                canvas->set_color   (147, 185, 240);
 
                 if (title_texture)
                 {
@@ -83,12 +78,15 @@ namespace example
                     (
                         { canvas_width * .5f, canvas_height * .5f },
                         { title_texture->get_width (), title_texture->get_height () },
-                        title_texture. get ()
+                          title_texture. get ()
                     );
                 }
             }
         }
     }
+
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     void Intro_Scene::update_loading ()
     {
@@ -96,12 +94,12 @@ namespace example
 
         if (context)
         {
-            // title image
+            // AJUSTAR ASPECT RATION -- EX ASTEROIDS
 
+            // Texture of the title image
             title_texture = Texture_2D::create (0, context, "title.png");
 
-            // Se comprueba si la textura se ha podido cargar correctamente:
-
+            // Checks if the title texture was correctly loaded
             if (title_texture)
             {
                 context->add (title_texture);
@@ -112,9 +110,14 @@ namespace example
                 state   = FADING_IN;
             }
             else
+            {
                 state   = ERROR;
+            }
         }
     }
+
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     void Intro_Scene::update_fading_in ()
     {
@@ -122,7 +125,7 @@ namespace example
 
         if (elapsed_seconds < 1.f)
         {
-            opacity = elapsed_seconds;      // Se aumenta la opacidad del logo a medida que pasa el tiempo
+            opacity = elapsed_seconds;      // The opacity of the title image is increased slowly as time passes
         }
         else
         {
@@ -133,10 +136,12 @@ namespace example
         }
     }
 
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
     void Intro_Scene::update_waiting ()
     {
-        // Se esperan dos segundos sin hacer nada:
-
+        // The scene does nothing for 2 seconds
         if (timer.get_elapsed_seconds () > 2.f)
         {
             timer.reset ();
@@ -145,22 +150,23 @@ namespace example
         }
     }
 
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
     void Intro_Scene::update_fading_out ()
     {
         float elapsed_seconds = timer.get_elapsed_seconds ();
 
         if (elapsed_seconds < .5f)
         {
-            opacity = 1.f - elapsed_seconds * 2.f;      // Se reduce la opacidad de 1 a 0 en medio segundo
+            opacity = 1.f - elapsed_seconds * 2.f;      // The opacity is reduced from 1 to 0 in half a second
         }
         else
         {
-            // Cuando el faceout se ha completado, se lanza la siguiente escena:
-
+            // When the fade out is complete, the menu scene is loaded
             state = FINISHED;
 
-            director.run_scene (shared_ptr< Scene >(new Menu_Scene));
+            director.run_scene (shared_ptr< Scene > (new Menu_Scene));
         }
     }
-
 }
