@@ -44,7 +44,7 @@ namespace flip
         {
             int index = ascending_keyframes.size ();
 
-            for (float range = max_speed, step = max_speed / float(ascending_keyframes.size ()); range > 0.F; range -= step)
+            for (float range = max_speed, step = max_speed / float(ascending_keyframes.size ()); range > 0.f; range -= step)
             {
                 index--;
 
@@ -59,7 +59,7 @@ namespace flip
         {
             int index = falling_keyframes.size ();
 
-            for (float range = -max_speed, step = max_speed / float(falling_keyframes.size ()); range < 0.F; range += step)
+            for (float range = -max_speed, step = max_speed / float(falling_keyframes.size ()); range < 0.f; range += step)
             {
                 index--;
 
@@ -86,7 +86,7 @@ namespace flip
             canvas.fill_rectangle
             (
                   position,
-                { animation_slice->width, animation_slice->height  },
+                { animation_slice->width, animation_slice->height },
                   animation_slice,
                   Anchor::CENTER
             );

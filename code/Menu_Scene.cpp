@@ -61,10 +61,10 @@ namespace flip
                 case ID(touch-moved):
                 {
                     // Determines the position where the screen has been touched
-                    Point2f touch_location = { *event[ID(x)].as< var::Float > (),
+                    Point2f touch_position = { *event[ID(x)].as< var::Float > (),
                                                *event[ID(y)].as< var::Float > () };
 
-                    int option_touched = option_at (touch_location);
+                    int option_touched = option_at (touch_position);
 
                     // Only one option can be touched at a time (to avoid multiple selections), so only one is considered pressed (the rest are "released")
                     for (int index = 0; index < number_of_options; ++index)
@@ -81,18 +81,18 @@ namespace flip
                     for (auto & option : options) option.is_pressed = false;
 
                     // It determines which option was the last the user has stopped touching and acts accordingly
-                    Point2f touch_location = { *event[ID(x)].as< var::Float > (),
+                    Point2f touch_position = { *event[ID(x)].as< var::Float > (),
                                                *event[ID(y)].as< var::Float > () };
 
-                    if (option_at (touch_location) == PLAY)
+                    if (option_at (touch_position) == PLAY)
                     {
                         director.run_scene (shared_ptr< Scene > (new Game_Scene));           // Goes to the game scene
                     }
-                    else if (option_at (touch_location) == HELP)
+                    else if (option_at (touch_position) == HELP)
                     {
                         director.run_scene (shared_ptr< Scene > (new Help_Scene));           // Goes to the help scene
                     }
-                    else if (option_at (touch_location) == CREDITS)
+                    else if (option_at (touch_position) == CREDITS)
                     {
                         director.run_scene (shared_ptr< Scene > (new Credits_Scene));        // Goes to the credits scene
                     }
