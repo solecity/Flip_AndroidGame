@@ -25,11 +25,9 @@ using namespace std;
 int main ()
 {
     // Es necesario habilitar un backend gráfico antes de nada:
-
     enable< basics::OpenGL_ES2 > ();
 
-    // Se crea una Game_Scene y se inicia mediante el Director:
-
+    // Se crea una Intro_Scene y se inicia mediante el Director:
     director.run_scene (shared_ptr< Scene >(new Intro_Scene));
 
     return 0;
@@ -37,7 +35,6 @@ int main ()
 
 // El linker tiende a eliminar código que cree que no se usa y, cuando se termina usando, lo echa en
 // falta provocando errores. Dejar estas referencias aquí por el momento para evitar esos problemas:
-
 void keep_links ()
 {
     const bool &c = Window::can_be_instantiated;

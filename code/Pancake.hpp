@@ -18,7 +18,11 @@ namespace flip
 
 	public:
 
-		Pancake(Atlas * atlas);
+		/**
+         * Launches a new instance of Pancake
+         * @param atlas  -  Points to the sprites atlas. It must not be nullptr
+         */
+		Pancake (Atlas * atlas);
 
 		/**
          * Sets how many points a pancake is worth

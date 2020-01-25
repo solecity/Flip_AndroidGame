@@ -16,7 +16,7 @@
     #include <basics/Texture_2D>
     #include <basics/Timer>
 
-    //#include "Sprite.hpp"
+    #include "Sprite.hpp"
     #include "Food.hpp"
 
     using namespace basics;
@@ -53,23 +53,27 @@
                 UNINITIALIZED,
                 WAITING_TO_START,
                 PLAYING,
-                GAME_OVER,
+                GAMEOVER,
             };
 
-            static const int max_lives              = 3;            ///< Maximum amount of lives a player can have
+            static const int    max_lives              = 5;         ///< Maximum amount of lives a player can have
 
-            static const int food_creation_impulse  = 1500;         ///< Impulse of the food item when it is created
-            static const int food_creation_bottom_y =  -50;         ///< Position of y of the food element when it is created
-            static const int food_touch_impulse     = 1000;         ///< Impulse of the food item when the player touches one
+            static const int    food_creation_impulse  = 1500;      ///< Impulse of the food item when it is created
+            static const int    food_creation_bottom_y =  -50;      ///< Position of y of the food element when it is created
+            static const int    food_touch_impulse     = 1000;      ///< Impulse of the food item when the player touches one
 
-            static const int gravity_force          =  -30;         ///< Value of empirically estimated force of gravity
+            static const int    gravity_force          =  -30;      ///< Value of empirically estimated force of gravity
 
-            static const int min_pancakes = 10;                     ///< Minimum amount of pancakes to calculate when a strawberry appears
-            static const int max_pancakes = 20;                     ///< Maximum amount of pancakes to calculate when a strawberry appears
+            static const int    min_pancakes           = 5;         ///< Minimum amount of pancakes to calculate when a strawberry appears
+            static const int    max_pancakes           = 10;        ///< Maximum amount of pancakes to calculate when a strawberry appears
 
             static const char * background_path;                    ///< Path of the background texture
             static const char * prepare_path;                       ///< Path of the get ready texture
-            static const char * food_atlas_path;                    ///< Path of the food atlas
+            static const char * sprites_atlas_path;                 ///< Path of the sprites atlas
+            static const char * font_path;                          ///< Path of the font
+
+            static const int    spawn_delay_min        = 1;        ///< Minimum amount of delay to launch a new pancake
+            static const int    spawn_delay_max        = 5;        ///< Maximum amount of delay to launch a new pancake
 
         private:
 
@@ -84,44 +88,36 @@
             int            launched_pancakes = 0;                   ///< Amount of pancakes already on the screen
             int            limit_pancakes    = 0;                   ///< Limit of pancakes that need be launched for a strawberry to appear
 
-            /**
-             *  Represents the ui image structure
-             */
-            struct Ui_Image
-            {
-                Atlas::Slice * slice;
-                Point2f        position;
-                Anchor         anchor;
-            };
-
-            // transformar em array para a pagina ajuda                 /// ????????????????
-            shared_ptr< Texture_2D > background;                    ///< Texture with the background image
-            shared_ptr< Texture_2D > prepare;                       ///< Texture with the get ready image
-
             vector< std::shared_ptr< Food > > food;                 ///< Array with all the food elements
 
-            // put in only one atlas
-            unique_ptr< Atlas > user_interface_atlas;               ///< Atlas that contains the images of the user interface
-            unique_ptr< Atlas > food_atlas;                         ///< Atlas that contains the images of the food elements
+            shared_ptr< Texture_2D >  background;                   ///< Texture with the background image
+            shared_ptr< Texture_2D >  prepare_texture;              ///< Texture with the get ready image
 
-            unique_ptr< Raster_Font > font;                         ///< Atlas that contains the images of the food elements
+            shared_ptr< Sprite >      prepare;                      ///< Get ready sprite
+            shared_ptr< Sprite >      life_icon;                    ///< Life sprite
+            shared_ptr< Sprite >      score_icon;                   ///< Score sprite
+            shared_ptr< Sprite >      pause_button;                 ///< Pause button sprite
 
-            Timer       timer;                                      ///< Timer used to measure time intervals
+            unique_ptr< Atlas >       sprites_atlas;                ///< Atlas that contains the images of all the game sprites
 
-            int 		score;                                      ///< Current game score
-            int 		lives;                                      ///< Amount of lives the player current has
+            unique_ptr< Raster_Font > lives_font;                   ///< Font to drawn the player lives
+            unique_ptr< Raster_Font > score_font;                   ///< Font to drawn the game score
+            unique_ptr< Raster_Font > timer_font;                   ///< Font to drawn the game timer
 
-            Ui_Image    life_icon;                                  ///< Life image
-            Ui_Image    pause_button;                               ///< Pause button image
-            Ui_Image    game_over;                                  ///< Game over image
+            Timer       game_timer;                                 ///< Timer used to measure the time in game
+            Timer       spawn_timer;                                ///< Timer used to measure the time between food items being spwaned
 
+            float       spawn_delay;                                ///< Amount of time require to pass between food being spwaned
+
+            int 		lives_counter;                              ///< Amount of lives the player has
+            int 		score_counter;                              ///< Current game score
 
         public:
 
             /**
              * Only initialize the attributes that must be initialized the first time when the scene is created from scratch.
              */
-            Game_Scene();
+            Game_Scene ();
 
             /**
              * This method calls the Directory to know the screen resolution of the scene
@@ -194,7 +190,7 @@
             /**
              * Draws the texture with the get ready message while the state of the scene is PREPARE
              */
-            void get_ready();
+            void get_ready ();
 
             /**
              * Changes the gamestate to PLAYING and the game starts
@@ -206,6 +202,11 @@
              * The food elements start to show
              */
             void run_simulation (float time);
+
+            /**
+             * Changes the gamestate to GAME_OVER and the goes to the game over scene
+             */
+            void game_over ();
 
         };
     }

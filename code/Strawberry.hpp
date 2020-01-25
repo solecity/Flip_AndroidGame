@@ -1,5 +1,5 @@
 /*
- * PANCAKE CLASS
+ * STRAWBERRY CLASS
  * Copyright © 2020+ Mariana Moreira
  */
 
@@ -18,7 +18,11 @@ namespace flip
 
 	public:
 
-		Strawberry(Atlas * atlas);
+		/**
+         * Launches a new instance of Strawberry
+         * @param atlas  -  Points to the sprites atlas. It must not be nullptr
+         */
+		Strawberry (Atlas * atlas);
 
 		/**
          * Sets how many points a pancake is worth

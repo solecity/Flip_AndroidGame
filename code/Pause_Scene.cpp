@@ -99,6 +99,12 @@ namespace flip
                         director.run_scene (shared_ptr< Scene > (new Menu_Scene));           // Goes to the menu scene
                     }
 
+                    // Checks if button is being pressed
+                    if (home_button->contains (touch_position))
+                    {
+                        director.run_scene (shared_ptr< Scene > (new Menu_Scene));               // Returns to the menu scene
+                    }
+
                     break;
                 }
             }

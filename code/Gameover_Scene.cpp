@@ -7,6 +7,9 @@
 #include <basics/Director>
 #include <basics/Transformation>
 
+#include <iomanip>
+#include <sstream>
+
 #include "Gameover_Scene.hpp"
 #include "Game_Scene.hpp"
 #include "Menu_Scene.hpp"
@@ -19,6 +22,7 @@ namespace flip
     const char * Gameover_Scene::gameover_path          = "menu-scene/gameover.png";
     const char * Gameover_Scene::button_path            = "menu-scene/home.png";
     const char * Gameover_Scene::buttons_atlas_path     = "menu-scene/buttons.sprites";
+    const char * Gameover_Scene::font_path              = "game-scene/bubblegum.fnt";
 
 
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -66,7 +70,6 @@ namespace flip
 
                     int option_touched = option_at (touch_position);
 
-                    // Only one option can be touched at a time (to avoid multiple selections), so only one is considered pressed (the rest are "released")
                     for (int index = 0; index < number_of_options; ++index)
                     {
                         options[index].is_pressed = index == option_touched;
@@ -93,10 +96,6 @@ namespace flip
                     if (option_at (touch_position) == PLAY_AGAIN)
                     {
                         director.run_scene (shared_ptr< Scene > (new Game_Scene));           // Goes to the game scene
-                    }
-                    else if (option_at (touch_position) == MAIN_MENU)
-                    {
-                        director.run_scene (shared_ptr< Scene > (new Menu_Scene));           // Goes to the menu scene
                     }
 
                     break;
@@ -193,6 +192,21 @@ namespace flip
                     canvas->set_transform (Transformation2f());
 
                     home_button->render(*canvas);
+/*
+                    wostringstream buffer_score;
+                    wostringstream buffer_timer;
+
+                    buffer_score << setfill (L'0');
+                    buffer_score << score_counter;
+
+                    buffer_timer << setfill (L'0');
+                    buffer_timer << floor(game_timer);
+
+                    Text_Layout score_text(*score_font, buffer_score.str ());
+                    Text_Layout timer_text(*timer_font, buffer_timer.str ());
+
+                    canvas->draw_text ({ canvas_width + 50.f , canvas_height - 50.f }, score_text, CENTER);
+                    canvas->draw_text ({ canvas_width / 2.f, canvas_height - 50.f }, timer_text, CENTER);*/
                 }
             }
         }

@@ -65,6 +65,7 @@
             static const char *   gameover_path;                ///< Path of the gameover texture
             static const char *   button_path;                  ///< Path of the home button
             static const char *   buttons_atlas_path;           ///< Path of the buttons atlas
+            static const char *   font_path;                    ///< Path of the font
 
             static const unsigned number_of_options = 1;        ///< Amount of options in the menu
 
@@ -79,12 +80,18 @@
 
             Option   options[number_of_options];                ///< Menu options data
 
-            shared_ptr< Texture_2D > gameover_texture;          ///< Texture with the gameover image
-            shared_ptr< Texture_2D > button_texture;            ///< Texture with the home button image
+            shared_ptr< Texture_2D >  gameover_texture;         ///< Texture with the gameover image
+            shared_ptr< Texture_2D >  button_texture;           ///< Texture with the home button image
 
-            shared_ptr< Sprite >     home_button;               ///< Home button sprite
+            shared_ptr< Sprite >      home_button;              ///< Home button sprite
 
-            unique_ptr< Atlas >      button_atlas;              ///< Atlas with the menu options images
+            unique_ptr< Atlas >       button_atlas;             ///< Atlas with the menu options images
+
+            unique_ptr< Raster_Font > score_font;               ///< Font to drawn the game score
+            unique_ptr< Raster_Font > timer_font;               ///< Font to drawn the game timer
+
+            int      score_counter;                             ///< Final game score
+            int      game_timer;                                ///< Final game timer
 
         public:
 
@@ -152,6 +159,36 @@
              * @return - Index of the option that is below the point or -1 if there is none.
              */
             int option_at (const Point2f & point);
+
+            /**
+             * Gets the final game score
+             * @return score
+             */
+            int get_score_counter ()
+            {
+                return score_counter;
+            }
+
+            /**
+             * Gets the final game time
+             * @return game_timer
+             */
+            int get_game_timer ()
+            {
+                return game_timer;
+            }
+
+        public:
+
+            void set_score_counter (int new_score_counter)
+            {
+                score_counter = new_score_counter;
+            }
+
+            void set_game_timer (int new_game_timer)
+            {
+                game_timer = new_game_timer;
+            }
 
         };
     }

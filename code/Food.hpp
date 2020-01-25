@@ -10,6 +10,7 @@
 #include <basics/Atlas>
 #include <basics/Point>
 #include <basics/Vector>
+
 #include <vector>
 
 using namespace basics;
@@ -25,7 +26,7 @@ namespace flip
 
         const float max_speed = 200.f;				///< Maximum speed of a food element
 
-		Atlas * atlas;								///< Food atlas
+		Atlas * atlas;								///< Sprites atlas
 
 		std::vector< Id > ascending_keyframes;		///< Id of ascending keyframes for the animation
 		std::vector< Id > falling_keyframes;		///< Id of falling keyframes for the animation
@@ -34,11 +35,17 @@ namespace flip
 		Vector2f speed;								///< Speed of the food element
 		Size2f   size;                    			///< Sprite size (usually in virtual coordinates)
 
-		int     anchor;                    			///< Indicates which point of the sprite will be placed in 'position' (x, y)
+		int      anchor;                    		///< Indicates which point of the sprite will be placed in 'position' (x, y)
+		float    radius;                    		///< Radius of the collider circle
 
 	public:
 
-	    Food(Atlas * atlas);
+		/**
+         * Launches a new instance of Food
+         * @param atlas  -  Points to the sprites atlas. It must not be nullptr
+         * @param radius -  Sets the radius of the collider
+         */
+	    Food(Atlas * atlas, float radius);
 
 		/**
          * Destroys the food elements
@@ -55,8 +62,10 @@ namespace flip
 			return position;
 		}
 
-
-
+		/**
+         * This method gets the left position (in x) of an element
+         * @return - left x position
+         */
 		float get_left_x () const
 		{
 			return
@@ -65,11 +74,19 @@ namespace flip
 					 position[0] - size[0] * .5f;
 		}
 
+		/**
+         * This method gets the right position (in x) of an element
+         * @return - right x position
+         */
 		float get_right_x () const
 		{
 			return get_left_x () + size.width;
 		}
 
+		/**
+         * This method gets the bottom position (in y) of an element
+         * @return - bottom y position
+         */
 		float get_bottom_y () const
 		{
 			return
@@ -78,14 +95,14 @@ namespace flip
 					 position[1] - size[1] * .5f;
 		}
 
+		/**
+         * This method gets the top position (in y) of an element
+         * @return - top y position
+         */
 		float get_top_y () const
 		{
 			return get_bottom_y () + size.height;
 		}
-
-
-
-
 
 		/**
          * This method gets the speed of a food element

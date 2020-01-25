@@ -11,12 +11,14 @@ using namespace std;
 namespace flip
 {
 
-    Food::Food(Atlas * atlas)
+    Food::Food(Atlas * atlas, float radius) : radius(radius)
     {
         this->atlas = atlas;
 
         position = { 0.f, 0.f };
         speed    = { 0.f, 0.f };
+        size     = { 0.f, 0.f };
+        anchor   = CENTER;
     }
 
 
@@ -71,6 +73,15 @@ namespace flip
 
         if (animation_slice)
         {
+            size[0] = animation_slice->width;
+            size[1] = animation_slice->height;
+
+            /*
+            // Draws the collider
+            canvas.set_color (0.f, 1.f, 0.f);
+            canvas.draw_rectangle({ position[0] - radius, position[1] - radius }, { radius * 2.f, radius * 2.f });
+             */
+
             // Draws the food element
             canvas.fill_rectangle
             (
@@ -85,31 +96,11 @@ namespace flip
 
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    bool Food::contains_point(const Point2f &point)
+    bool Food::contains_point(const Point2f & point)
     {
-        float this_left = this->get_left_x ();
+        // calculates if the user hits the collider circle
+        float  distance = (Vector2f(position.coordinates) - Vector2f(point.coordinates)).length ();
 
-        if (point.coordinates.x () > this_left)
-        {
-            float this_bottom = this->get_bottom_y ();
-
-            if (point.coordinates.y () > this_bottom)
-            {
-                float this_right = this_left + this->size.width;
-
-                if (point.coordinates.x () < this_right)
-                {
-                    float this_top = this_bottom + this->size.height;
-
-                    if (point.coordinates.y () < this_top)
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
+        return distance < radius;
     }
-
 }

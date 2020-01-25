@@ -12,6 +12,7 @@
 #define SPRITE_HEADER
 
     #include <memory>
+    #include <basics/Atlas>
     #include <basics/Canvas>
     #include <basics/Texture_2D>
     #include <basics/Vector>
@@ -19,6 +20,7 @@
     namespace flip
     {
 
+        using basics::Atlas;
         using basics::Canvas;
         using basics::Size2f;
         using basics::Point2f;
@@ -29,16 +31,17 @@
         {
         protected:
 
-            Texture_2D * texture;                   ///< Textura en la que está la imagen del sprite.
-            int          anchor;                    ///< Indica qué punto de la textura se colocará en 'position' (x,y).
+            Texture_2D   * texture;                 ///< Textura en la que está la imagen del sprite (cuando no hay slice de atlas).
+            const Atlas::Slice * slice;                   ///< Slice de atlas en la que está la imagen del sprite (cuando no hay textura).
+            int            anchor;                  ///< Indica qué punto de la textura se colocará en 'position' (x,y).
 
-            Size2f       size;                      ///< Tamaño del sprite (normalmente en coordenadas virtuales).
-            Point2f      position;                  ///< Posición del sprite (normalmente en coordenadas virtuales).
-            float        scale;                     ///< Escala el tamaño del sprite. Por defecto es 1.
+            Size2f         size;                    ///< Tamaño del sprite (normalmente en coordenadas virtuales).
+            Point2f        position;                ///< Posición del sprite (normalmente en coordenadas virtuales).
+            float          scale;                   ///< Escala el tamaño del sprite. Por defecto es 1.
 
-            Vector2f     speed;                     ///< Velocidad a la que se mueve el sprite. Usar el valor por defecto (0,0) para dejarlo quieto.
+            Vector2f       speed;                   ///< Velocidad a la que se mueve el sprite. Usar el valor por defecto (0,0) para dejarlo quieto.
 
-            bool         visible;                   ///< Indica si el sprite se debe actualizar y dibujar o no. Por defecto es true.
+            bool           visible;                 ///< Indica si el sprite se debe actualizar y dibujar o no. Por defecto es true.
 
         public:
 
@@ -47,6 +50,12 @@
              * @param texture Puntero a la textura en la que está su imagen. No debe ser nullptr.
              */
             Sprite(Texture_2D * texture);
+
+            /**
+             * Inicializa una nueva instancia de Sprite.
+             * @param texture Puntero a la textura en la que está su imagen. No debe ser nullptr.
+             */
+            Sprite(const Atlas::Slice * slice);
 
             /**
              * Destructor virtual para facilitar heredar de esta clase si fuese necesario.
@@ -70,9 +79,9 @@
             float get_left_x () const
             {
                 return
-                    (anchor & 0x3) == basics::LEFT  ? position[0] :
-                    (anchor & 0x3) == basics::RIGHT ? position[0] - size[0] :
-                     position[0] - size[0] * .5f;
+                        (anchor & 0x3) == basics::LEFT  ? position[0] :
+                        (anchor & 0x3) == basics::RIGHT ? position[0] - size[0] :
+                        position[0] - size[0] * .5f;
             }
 
             float get_right_x () const
@@ -83,9 +92,9 @@
             float get_bottom_y () const
             {
                 return
-                    (anchor & 0xC) == basics::BOTTOM ? position[1] :
-                    (anchor & 0xC) == basics::TOP    ? position[1] - size[1] :
-                     position[1] - size[1] * .5f;
+                        (anchor & 0xC) == basics::BOTTOM ? position[1] :
+                        (anchor & 0xC) == basics::TOP    ? position[1] - size[1] :
+                        position[1] - size[1] * .5f;
             }
 
             float get_top_y () const
@@ -209,12 +218,14 @@
             {
                 if (visible)
                 {
-                    canvas.fill_rectangle (position, size * scale, texture, anchor);
+                    if (texture)
+                        canvas.fill_rectangle (position, size * scale, texture, anchor);
+                    else
+                        canvas.fill_rectangle (position, size * scale, slice,   anchor);
                 }
             }
 
         };
-
     }
 
 #endif

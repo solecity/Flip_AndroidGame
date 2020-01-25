@@ -17,10 +17,22 @@ namespace flip
 
     Sprite::Sprite(Texture_2D * texture)
     :
-        texture (texture)
+            texture (texture)
     {
         anchor   = basics::CENTER;
         size     = { texture->get_width (), texture->get_height () };
+        position = { 0.f, 0.f };
+        scale    = 1.f;
+        speed    = { 0.f, 0.f };
+        visible  = true;
+    }
+
+    Sprite::Sprite(const Atlas::Slice * slice)
+    :
+            slice  (slice)
+    {
+        anchor   = basics::CENTER;
+        size     = { slice->width, slice->height };
         position = { 0.f, 0.f };
         scale    = 1.f;
         speed    = { 0.f, 0.f };

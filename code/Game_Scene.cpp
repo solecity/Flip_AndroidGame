@@ -1,20 +1,22 @@
 /*
  * GAME SCENE
- * Copyright © 2018+ Ángel Rodríguez Ballesteros
- *
- * Distributed under the Boost Software License, version  1.0
- * See documents/LICENSE.TXT or www.boost.org/LICENSE_1_0.txt
- *
- * angel.rodriguez@esne.edu
+ * Copyright © 2020+ Mariana Moreira
  */
 
-#include "Game_Scene.hpp"
-#include "Pancake.hpp"
-
-#include <cstdlib>
 #include <basics/Log>
 #include <basics/Canvas>
 #include <basics/Director>
+
+#include <cmath>
+#include <cstdlib>
+#include <iomanip>
+#include <sstream>
+
+#include "Game_Scene.hpp"
+#include "Pause_Scene.hpp"
+#include "Gameover_Scene.hpp"
+#include "Pancake.hpp"
+#include "Strawberry.hpp"
 
 using namespace basics;
 using namespace std;
@@ -22,46 +24,39 @@ using namespace std;
 namespace flip
 {
 
-    const char * Game_Scene::background_path = "game-scene/background.png";
-    //const char * Game_Scene::prepare_path    = "game-scene/get_ready.png";
-    const char * Game_Scene::food_atlas_path = "game-scene/food.sprites";
-    //const char * Game_Scene::food_atlas_path = "game-scene/pancakes.sprites";
+    const char * Game_Scene::background_path        = "game-scene/background.png";
+    const char * Game_Scene::prepare_path           = "game-scene/get_ready.png";
+    const char * Game_Scene::sprites_atlas_path     = "game-scene/sprite.sprites";
+    const char * Game_Scene::font_path              = "game-scene/bubblegum.fnt";
 
 
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     Game_Scene::Game_Scene()
     {
-        // Se establece la resolución virtual (independiente de la resolución virtual del dispositivo).
-        // En este caso no se hace ajuste de aspect ratio, por lo que puede haber distorsión cuando
-        // el aspect ratio real de la pantalla del dispositivo es distinto.
-
         canvas_width  = 1280;
         canvas_height =  720;
 
-        // Starts the random number generator seed
-        srand (unsigned(time(nullptr)));
+        srand (unsigned(time(nullptr)));        // Starts the random number generator seed
 
-        // Other attributes are initialized
-        initialize ();
+        initialize ();                          // Other attributes are initialized
 
         suspended = true;
     }
 
 
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-    // Algunos atributos se inicializan en este método en lugar de hacerlo en el constructor porque
-    // este método puede ser llamado más veces para restablecer el estado de la escena y el constructor
-    // solo se invoca una vez.
 
     bool Game_Scene::initialize ()
     {
-        state     = background.get () ? RUNNING : LOADING;
-        suspended = false;
-        gameplay  = UNINITIALIZED;
+        state             = background.get () ? RUNNING : LOADING;
 
-        score     = 0;
-        lives     = max_lives;
+        gameplay          = UNINITIALIZED;
+
+        suspended         = false;
+
+        score_counter     = 0;
+        lives_counter     = max_lives;
 
         return true;
     }
@@ -76,15 +71,21 @@ namespace flip
         {
             if (gameplay == WAITING_TO_START)
             {
-                start_playing ();           // Starts playing when the user touches the screen for the first time
+                start_playing ();                                                                 // Starts playing when the user touches the screen for the first time
             }
             else switch (event.id)
             {
-                case ID(touch-started):     // The user touches the screen
+                case ID(touch-started):                                                           // The user touches the screen
                 {
                     // Determines the position where the screen has been touched
                     Point2f touch_position{ *event[ID(x)].as< var::Float > (),
                                             *event[ID(y)].as< var::Float > () };
+
+                    // Checks if button is being pressed
+                    if (pause_button->contains (touch_position))
+                    {
+                        director.run_scene (shared_ptr< Scene > (new Pause_Scene));               // Goes to the pause scene
+                    }
 
                     // Checks if the point where the user touched is inside a food element
                     for (auto & item : food)
@@ -95,20 +96,9 @@ namespace flip
                             item->apply_impulse (food_touch_impulse);
 
                             // Adds to the score total
-                                //score += item->get_points();
+                            score_counter += item->get_points();
                         }
                     }
-
-
-                    // ---------------------------------------------------------
-                    // REMOVER
-                    // Esto es para hacer pruebas. Se debe quitar:
-                        create_pancake ();
-
-                    // VERIFICAR SE O MENU CONTEM O TOUCH POSITION
-                    // SE CLICAR NO MENU PAUSA
-                        //director.run_scene (shared_ptr< Scene >(new Pause_Scene));
-                    // ---------------------------------------------------------
 
                     break;
                 }
@@ -123,9 +113,9 @@ namespace flip
     {
         if (!suspended) switch (state)
         {
-            case LOADING: load_textures  ();     break;
-            case PREPARE: get_ready      ();     break;
-            case RUNNING: run_simulation (time); break;
+            case LOADING:  load_textures  ();     break;
+            case PREPARE:  get_ready      ();     break;
+            case RUNNING:  run_simulation (time); break;
             case ERROR:   break;
         }
     }
@@ -164,19 +154,43 @@ namespace flip
                         item->render (*canvas);
                     }
 
-                    // ---------------------------------------------------------
-                    // DESENHAR
-                        // BOTAO PAUSA
-                        // VIDA
-                        // TIMER
-                    // ---------------------------------------------------------
+                    life_icon->render   (*canvas);                           // Draws the lives icon
+                    score_icon->render   (*canvas);                          // Draws the score icon
+                    pause_button->render (*canvas);                          // Draws the pause button
 
                     if (state == PREPARE)
                     {
-                        // ---------------------------------------------------------
-                        // DESENHAR TEXTURA "get ready"
-                        // ---------------------------------------------------------
+                        // Loads the get ready sprite
+                        prepare->render (*canvas);
                     }
+                    else {
+
+                        wostringstream buffer_lifes;
+                        wostringstream buffer_score;
+                        wostringstream buffer_timer;
+
+                        buffer_lifes << setfill (L'0');
+                        buffer_lifes << lives_counter;
+
+                        buffer_score << setfill (L'0');
+                        buffer_score << score_counter;
+
+                        buffer_timer << setfill (L'0');
+                        buffer_timer << floor(game_timer.get_elapsed_seconds());
+
+                        Text_Layout lives_text(*lives_font, buffer_lifes.str ());
+                        Text_Layout score_text(*score_font, buffer_score.str ());
+                        Text_Layout timer_text(*timer_font, buffer_timer.str ());
+
+                        canvas->draw_text ({ life_icon->get_width(), canvas_height - 50.f }, lives_text, CENTER);
+                        canvas->draw_text ({ score_icon->get_width() + life_icon->get_width() + 50.f , canvas_height - 50.f }, score_text, LEFT);
+                        canvas->draw_text ({ canvas_width / 2.f, canvas_height - 50.f }, timer_text, CENTER);
+                    }
+                }
+
+                if (gameplay == GAMEOVER)
+                {
+                    director.run_scene (shared_ptr< Scene > (new Gameover_Scene));                    // Goes to the gameover scene
                 }
             }
         }
@@ -184,9 +198,6 @@ namespace flip
 
 
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-    // In this method, only one texture is loaded per frame to pause the load if the game changes to second plane unexpectedly
-    // Another  aspect is that the load doesn't start until the scene starts to have the possibility to show the user
-    // that the load is in progress instead of having a black screen that does not respond during a time.
 
     void Game_Scene::load_textures ()
     {
@@ -194,47 +205,58 @@ namespace flip
 
         if (context)
         {
-            // ---------------------------------------------------------
-            // hpp : shared_ptr<Texture_2D> pages[3];       // ??????????????????????
+            // Adjusts the aspect ratio for different screen sizes
+            float real_aspect_ratio = float(context->get_surface_width()) / context->get_surface_height();
 
-            // AJUSTAR ASPECT RATION -- EX ASTEROIDS
-            // ---------------------------------------------------------
+            canvas_width = unsigned(canvas_height * real_aspect_ratio);
 
+            background      = Texture_2D::create (ID(background),      context, background_path);
+            prepare_texture = Texture_2D::create (ID(prepare_texture), context, prepare_path);
 
-            // Loads the background texture
-            background = Texture_2D::create (ID(background), context, background_path);
+            // Checks if the texture was loaded correctly
+            if (background) {
+                context->add (background);
+                context->add (prepare_texture);
+            }
+            else
+            {
+                state = ERROR;
+                return;
+            }
 
-            // TEXTURA get ready
-            // The get ready texture is loaded
-                //prepare = Texture_2D::create (ID(prepare), context, prepare_path);
+            // Loads the get ready sprite
+            prepare.reset (new Sprite(prepare_texture.get()));
+            prepare->set_position ({ canvas_width / 2, canvas_height / 2 });
 
-            // Se comprueba si la textura se ha podido cargar correctamente:
-            if (background) context->add (background); else { state = ERROR; return; }
+            // Loads the sprite atlas
+            sprites_atlas.reset (new Atlas(sprites_atlas_path, context));
 
+            if (!sprites_atlas->good ()) { state = ERROR; return; }
 
+            // Loads the life icon
+            life_icon.reset(new Sprite(sprites_atlas->get_slice (ID(life))));
+            life_icon->set_position({ 50.f, canvas_height - 50.f });
 
-            // ---------------------------------------------------------
-            // TEXTURA - MUDAR FOOD ATLAS PARA UM GERAL
-                // BOTAO PAUSA
-                // VIDA
-                // PANQUECAS
-                // MORANGO
-            // ---------------------------------------------------------
+            // Loads the score icon
+            score_icon.reset(new Sprite(sprites_atlas->get_slice (ID(score))));
+            score_icon->set_position({ life_icon->get_width() + 100.f, canvas_height - 50.f });
 
-            // Loads the food atlas
-            food_atlas.reset (new Atlas(food_atlas_path, context));
+            // Loads the pause button
+            pause_button.reset(new Sprite(sprites_atlas->get_slice (ID(pause))));
+            pause_button->set_position({ canvas_width - 50.f, canvas_height - 50.f });
 
-            if (!food_atlas->good ()) { state = ERROR; return; }
+            // Creates the lives counter
+            lives_font.reset (new Raster_Font(font_path, context));
 
+            // Creates the score counter
+            score_font.reset (new Raster_Font(font_path, context));
 
-            // ---------------------------------------------------------
-            // RASTER FONT - PARA OS NUMEROS DO TIMER
-            // ---------------------------------------------------------
-
-            create_sprites();
+            // Creates the game timer
+            timer_font.reset (new Raster_Font(font_path, context));
 
             state = PREPARE;
-            timer.reset();
+
+            game_timer.reset();
         }
     }
 
@@ -244,9 +266,11 @@ namespace flip
     void Game_Scene::get_ready()
     {
         // The screen shows the get ready message for a few seconds
-        if (timer.get_elapsed_seconds () > 2.f)
+        if (game_timer.get_elapsed_seconds () > 2.f)
         {
-            timer.reset ();
+            game_timer.reset ();
+
+            create_sprites();
 
             state = RUNNING;
         }
@@ -268,25 +292,25 @@ namespace flip
         // Avoids that the 1st item will jump too fast
         if (time > 0.25F) return;
 
-        // The position of the whole food elemetns is updated
+        // The position of the whole food elements is updated
         for (auto & item : food)
         {
             item->apply_force (float(gravity_force));       // Applies the gravity pull downwards
             item->update      (time);
         }
 
-        // ---------------------------------------------------------
-        // CREAR BONUS
-        // SE O LIMITE DE PANQUECAS NO ECRA FOR ATINGIDO GERA UM MORANGO
-        // RESET DO LIMITE DE PANQUECAS
-
-        /* if (limit_pancakes >= ....)
+        if (spawn_timer.get_elapsed_seconds() >= spawn_delay)
         {
-            create_strawberry();
-            launched_pancakes = 0;
+            create_pancake();
         }
-        */
-        // ---------------------------------------------------------
+
+        // If amount of spwan pancakes is over the limit then creates a strawberry
+        if (launched_pancakes > limit_pancakes)
+        {
+            create_strawberry();                    // Creates one strawberry
+
+            launched_pancakes = 0;                  // Resets launch pancake counter
+        }
 
         // Checks if the food reached the bottom of the screen
         bool processed_all_items = false;
@@ -301,19 +325,20 @@ namespace flip
                     break;
                 }
 
+                // If a food element passes the bottom
                 if ((*item)->get_position ().coordinates.y () < float(food_creation_bottom_y))
                 {
-                    basics::log.d ("La comida llegó abajo...");
+                    food.erase (item);              // Erase food item
 
-                    food.erase (item);
-
-                    // ---------------------------------------------------------
-                    // REMOVER VIDA
-                    // ---------------------------------------------------------
+                    lives_counter--;                // Removes one life
 
                     break;
                 }
             }
+        }
+
+        if (lives_counter <= 0) {
+            gameplay = GAMEOVER;
         }
     }
 
@@ -325,20 +350,8 @@ namespace flip
         // Creates one pancake
         create_pancake();
 
-        // ---------------------------------------------------------
-        // LIMITE DE PANQUECAS PARA MORANGO
-            // Sets the limit for how many pancakes need to show until a strawberry appears
-            //limit_pancakes = rand() % (max - min) + min
-
-        // BOTAO PAUSA
-            // Creates the pause menu button
-
-        // TIMER
-            // Creates the game timer
-
-        // VIDAS
-            // Creates the player lives images
-        // ---------------------------------------------------------
+        // Spawn pancake max limit for strawberry spawns
+        limit_pancakes = rand() % (max_pancakes - min_pancakes) + min_pancakes;
     }
 
 
@@ -347,9 +360,9 @@ namespace flip
 
     void Game_Scene::create_pancake()
     {
-        shared_ptr< Pancake > pancake(new Pancake(food_atlas.get ()));
+        shared_ptr< Pancake > pancake(new Pancake(sprites_atlas.get ()));
 
-        float x = float(rand () % int(canvas_width));
+        float x = float(rand () % (int(canvas_width) - 100) + 100);
         float y = float(food_creation_bottom_y);
 
         pancake->set_position ({ x, y });
@@ -358,26 +371,28 @@ namespace flip
         food.push_back (pancake);
 
         launched_pancakes++;
+
+        spawn_delay = float(rand () % (spawn_delay_max - spawn_delay_min) + spawn_delay_min);
+
+        spawn_timer.reset();
     }
 
 
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-    // creates one strawberry
 
-    void Game_Scene::create_strawberry() {
+    void Game_Scene::create_strawberry()
+    {
+        shared_ptr< Strawberry > strawberry(new Strawberry(sprites_atlas.get ()));
 
-        /*
-        shared_ptr< Strawberry > strawberry(new Strawberry(food_atlas.get ()));
-
-        float x = float(rand () % int(canvas_width));
+        float x = float(rand () % (int(canvas_width) - 100) + 100);
         float y = float(food_creation_bottom_y);
 
         strawberry->set_position ({ x, y });
         strawberry->apply_impulse (float(food_creation_impulse));
+
         food.push_back (strawberry);
 
-        // Calculates a new limit for the amount of pancakes launched to generate a new straberry
-        // limit_pancakes = rand() % (max - min) + min
-        */
+        // Calculates a new limit for the amount of pancakes launched to generate a new strawberry
+        limit_pancakes = rand() % (max_pancakes - min_pancakes) + min_pancakes;
     }
 }
