@@ -64,8 +64,8 @@
 
             static const int    gravity_force          =  -30;      ///< Value of empirically estimated force of gravity
 
-            static const int    min_pancakes           = 5;         ///< Minimum amount of pancakes to calculate when a strawberry appears
-            static const int    max_pancakes           = 10;        ///< Maximum amount of pancakes to calculate when a strawberry appears
+            static const int    min_pancakes           = 2;         ///< Minimum amount of pancakes to calculate when a strawberry appears
+            static const int    max_pancakes           = 6;         ///< Maximum amount of pancakes to calculate when a strawberry appears
 
             static const char * background_path;                    ///< Path of the background texture
             static const char * prepare_path;                       ///< Path of the get ready texture
