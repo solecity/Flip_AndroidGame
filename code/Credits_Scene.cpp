@@ -15,7 +15,7 @@ using namespace std;
 
 namespace flip
 {
-    const char * Credits_Scene::credits_path      = "menu-scene/credits.png";
+    const char * Credits_Scene::credits_path    = "menu-scene/credits.png";
     const char * Credits_Scene::button_path     = "menu-scene/home.png";
 
 

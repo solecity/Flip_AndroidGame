@@ -43,7 +43,7 @@
                 READY
             };
 
-            static const char * help_path;                        ///< Path of the help texture
+            static const char * help_path;                      ///< Path of the help texture
             static const char * button_path;                    ///< Path of the home button
 
         private:
