@@ -44,7 +44,7 @@
             };
 
             static const char * credits_path;                   ///< Path of the credits texture
-            static const char * button_path;                    ///< Path of the home button
+            static const char * button_path;                       ///< Path of the home button
 
         private:
 

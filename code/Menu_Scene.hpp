@@ -14,7 +14,6 @@
     #include <basics/Scene>
     #include <basics/Size>
     #include <basics/Texture_2D>
-    #include <basics/Timer>
 
     using namespace basics;
     using namespace std;
@@ -23,7 +22,6 @@
     {
 
         using basics::Atlas;
-        using basics::Timer;
         using basics::Canvas;
         using basics::Point2f;
         using basics::Size2f;
@@ -40,7 +38,6 @@
             {
                 LOADING,
                 READY,
-                FINISHED,
                 ERROR
             };
 
@@ -64,9 +61,10 @@
                 float                is_pressed;
             };
 
-            static const char * background_path;                ///< Path of the background texture
+            static const char *      background_path;           ///< Path of the background texture
+            static const char *      buttons_atlas_path;        ///< Path of the buttons atlas
 
-            static const unsigned number_of_options = 3;        ///< Amount of options in the menu
+            static const unsigned    number_of_options = 3;     ///< Amount of options in the menu
 
         private:
 
@@ -77,20 +75,18 @@
             unsigned canvas_width;                              ///< Width of the window where the scene is drawn
             unsigned canvas_height;                             ///< Height of the window where the scene is drawn
 
-            Timer    timer;                                     ///< Timer used to measure time intervals
-
             Option   options[number_of_options];                ///< Menu options data
 
-            shared_ptr< Texture_2D > background;                ///< Texture with the background image
+            shared_ptr< Texture_2D > background_texture;        ///< Texture with the background image
 
-            unique_ptr< Atlas > atlas;                          ///< Atlas that contains the images of the menu options
+            unique_ptr< Atlas >      button_atlas;              ///< Atlas with the menu options images
 
         public:
 
             /**
-             * Only initialize the attributes that must be initialized the first time when the scene is created from scratch.
+             * Sets the initial values of the scene when it is first loaded
              */
-            Menu_Scene();
+            Menu_Scene ();
 
             /**
              * This method calls the Directory to know the screen resolution of the scene

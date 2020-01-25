@@ -9,23 +9,28 @@
 
 #include "Menu_Scene.hpp"
 #include "Game_Scene.hpp"
+#include "Help_Scene.hpp"
+#include "Credits_Scene.hpp"
 
 using namespace basics;
 using namespace std;
 
 namespace flip
 {
-    const char * Menu_Scene::background_path = "game-scene/background.png";
+    const char * Menu_Scene::background_path        = "game-scene/background.png";
+    const char * Menu_Scene::buttons_atlas_path     = "menu-scene/buttons.sprites";
 
 
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    Menu_Scene::Menu_Scene()
+    Menu_Scene::Menu_Scene ()
     {
-        state         = LOADING;            // The scene starts with the LOADING state
-        suspended     = true;
+        state         = LOADING;
+
         canvas_width  = 1280;
         canvas_height =  720;
+
+        suspended     = true;
     }
 
 
@@ -35,8 +40,10 @@ namespace flip
     {
         for (auto & option : options)
         {
-            option.is_pressed = false;      // All options are set as not pressed
+            option.is_pressed = false;          // All options are set as not pressed
         }
+
+        suspended = false;
 
         return true;
     }
@@ -46,19 +53,18 @@ namespace flip
 
     void Menu_Scene::handle (basics::Event & event)
     {
-        // Events are discarded when the scene is LOADING
         if (state == READY)
         {
             switch (event.id)
             {
-                case ID(touch-started):         // The user touches the screen
+                case ID(touch-started):                                                      // The user touches the screen
                 case ID(touch-moved):
                 {
                     // Determines the position where the screen has been touched
                     Point2f touch_location = { *event[ID(x)].as< var::Float > (),
                                                *event[ID(y)].as< var::Float > () };
 
-                    int     option_touched = option_at (touch_location);
+                    int option_touched = option_at (touch_location);
 
                     // Only one option can be touched at a time (to avoid multiple selections), so only one is considered pressed (the rest are "released")
                     for (int index = 0; index < number_of_options; ++index)
@@ -68,7 +74,8 @@ namespace flip
 
                     break;
                 }
-                case ID(touch-ended):           // The user stops touching the screen
+
+                case ID(touch-ended):                                                        // The user stops touching the screen
                 {
                     // All options are "released"
                     for (auto & option : options) option.is_pressed = false;
@@ -79,18 +86,16 @@ namespace flip
 
                     if (option_at (touch_location) == PLAY)
                     {
-                        director.run_scene (shared_ptr< Scene > (new Game_Scene));         // goes to the game scene
+                        director.run_scene (shared_ptr< Scene > (new Game_Scene));           // Goes to the game scene
                     }
-
-                    /*else if (option_at (touch_location) == HELP)
+                    else if (option_at (touch_location) == HELP)
                     {
-                        director.run_scene (shared_ptr< Scene > (new Help_Scene));         // goes to the help page
+                        director.run_scene (shared_ptr< Scene > (new Help_Scene));           // Goes to the help scene
                     }
                     else if (option_at (touch_location) == CREDITS)
                     {
-                        director.run_scene (shared_ptr< Scene > (new Credits_Scene));      // goes to the credits page
+                        director.run_scene (shared_ptr< Scene > (new Credits_Scene));        // Goes to the credits scene
                     }
-                     */
 
                     break;
                 }
@@ -109,16 +114,21 @@ namespace flip
 
             if (context)
             {
-                // Loads the background texture
-                background = Texture_2D::create (ID(background), context, background_path);
+                // Adjusts the aspect ratio for different screen sizes
+                float real_aspect_ratio = float(context->get_surface_width()) / context->get_surface_height();
 
-                context->add(background);
+                canvas_width = unsigned(canvas_height * real_aspect_ratio);
+
+                // Loads the background texture
+                background_texture = Texture_2D::create (ID(background_texture), context, background_path);
+
+                context->add(background_texture);
 
                 // Loads the menu buttons atlas
-                atlas.reset (new Atlas("menu-scene/buttons.sprites", context));
+                button_atlas.reset (new Atlas(buttons_atlas_path, context));
 
                 // If the atlas could be loaded then the state is READY if not the is ERROR
-                state = atlas->good () ? READY : ERROR;
+                state = button_atlas->good () ? READY : ERROR;
 
                 // If the atlas is available, the menu option data is initialized
                 if (state == READY)
@@ -154,9 +164,9 @@ namespace flip
                 if (state == READY)
                 {
                     // Draws the background
-                    canvas->fill_rectangle ({ 0.f, 0.f }, { (float) canvas_width, (float) canvas_height }, background.get (), Anchor::BOTTOM | Anchor::LEFT);
+                    canvas->fill_rectangle ({ 0.f, 0.f }, { (float) canvas_width, (float) canvas_height }, background_texture.get (), Anchor::BOTTOM | Anchor::LEFT);
 
-                    // The slice of each of the menu options is drawn
+                    // The slice of each of the menu options is drawn with an effect
                     for (auto & option : options)
                     {
                         canvas->set_transform
@@ -178,14 +188,15 @@ namespace flip
         }
     }
 
+
     // ---------------------------------------------------------------------------------------------
 
     void Menu_Scene::configure_options ()
     {
         // A slice of the atlas is assigned to each menu option according to its ID
-        options[PLAY   ].slice = atlas->get_slice (ID(play)   );
-        options[HELP   ].slice = atlas->get_slice (ID(help)   );
-        options[CREDITS].slice = atlas->get_slice (ID(credits));
+        options[PLAY   ].slice = button_atlas->get_slice (ID(play)   );
+        options[HELP   ].slice = button_atlas->get_slice (ID(help)   );
+        options[CREDITS].slice = button_atlas->get_slice (ID(credits));
 
         // The total height of the menu is calculated
         float menu_height = 0;
@@ -206,6 +217,7 @@ namespace flip
         // The pressure of each option is restored
         initialize ();
     }
+
 
     // ---------------------------------------------------------------------------------------------
 

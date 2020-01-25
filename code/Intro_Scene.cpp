@@ -15,6 +15,16 @@ using namespace std;
 namespace flip
 {
 
+    Intro_Scene::Intro_Scene ()
+    {
+        state         = UNINITIALIZED;
+
+        canvas_width  = 1280;
+        canvas_height =  720;
+
+        suspended     = true;
+    }
+
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     bool Intro_Scene::initialize ()
@@ -30,6 +40,9 @@ namespace flip
             opacity = 0.f;
             state   = FADING_IN;
         }
+
+        suspended   = false;
+
         return true;
     }
 
@@ -94,7 +107,10 @@ namespace flip
 
         if (context)
         {
-            // AJUSTAR ASPECT RATION -- EX ASTEROIDS
+            // Adjusts the aspect ratio for different screen sizes
+            float real_aspect_ratio = float(context->get_surface_width()) / context->get_surface_height();
+
+            canvas_width = unsigned(canvas_height * real_aspect_ratio);
 
             // Texture of the title image
             title_texture = Texture_2D::create (0, context, "title.png");
@@ -164,7 +180,7 @@ namespace flip
         else
         {
             // When the fade out is complete, the menu scene is loaded
-            state = FINISHED;
+            state   = FINISHED;
 
             director.run_scene (shared_ptr< Scene > (new Menu_Scene));
         }

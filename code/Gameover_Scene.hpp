@@ -62,7 +62,7 @@
                 float                is_pressed;
             };
 
-            static const char *   gameover_path;                ///< Path of the gameover texture
+            static const char *   gameover_path;                   ///< Path of the gameover texture
             static const char *   button_path;                  ///< Path of the home button
             static const char *   buttons_atlas_path;           ///< Path of the buttons atlas
 

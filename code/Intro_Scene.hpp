@@ -58,13 +58,7 @@
             /**
              * Sets the initial values of the scene when it is first loaded
              */
-            Intro_Scene()
-            {
-                state         = UNINITIALIZED;
-                suspended     = true;
-                canvas_width  = 1280;
-                canvas_height =  720;
-            }
+            Intro_Scene ();
 
             /**
              * This method calls the Directory to know the screen resolution of the scene
@@ -109,10 +103,10 @@
 
         private:
 
-            void update_loading();                 ///< Loads the content of the scene
-            void update_fading_in();               ///< Applies a fade in effect
-            void update_waiting();                 ///< Prevents the scene from changing for a time
-            void update_fading_out();              ///< Applies a fade out effect
+            void update_loading    ();              ///< Loads the content of the scene
+            void update_fading_in  ();              ///< Applies a fade in effect
+            void update_waiting    ();              ///< Prevents the scene from changing for a time
+            void update_fading_out ();              ///< Applies a fade out effect
 
         };
     }
