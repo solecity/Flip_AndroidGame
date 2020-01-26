@@ -1,7 +1,7 @@
 var searchData=
 [
   ['game_5fscene_10',['Game_Scene',['../classflip_1_1_game___scene.html',1,'flip::Game_Scene'],['../classflip_1_1_game___scene.html#ad25e62de408faca7bff47a42a9d8eb62',1,'flip::Game_Scene::Game_Scene()']]],
-  ['gameover_5fscene_11',['Gameover_Scene',['../classflip_1_1_gameover___scene.html',1,'flip::Gameover_Scene'],['../classflip_1_1_gameover___scene.html#ab536068c054ad70eb23929120ff7cbae',1,'flip::Gameover_Scene::Gameover_Scene()']]],
+  ['gameover_5fscene_11',['Gameover_Scene',['../classflip_1_1_gameover___scene.html',1,'flip::Gameover_Scene'],['../classflip_1_1_gameover___scene.html#a6ac264c617c23d98be17306edfd6825b',1,'flip::Gameover_Scene::Gameover_Scene()']]],
   ['get_5fbottom_5fy_12',['get_bottom_y',['../classflip_1_1_food.html#ac2b4220a5544e43f5bbecd2394c7d71e',1,'flip::Food']]],
   ['get_5fleft_5fx_13',['get_left_x',['../classflip_1_1_food.html#a74036422665bb616b5c1c6487eeb69ef',1,'flip::Food']]],
   ['get_5fpoints_14',['get_points',['../classflip_1_1_food.html#ae2f4fa8fa92b68368086be63fad14fc0',1,'flip::Food::get_points()'],['../classflip_1_1_pancake.html#ac5b4875ad1b8bf8058c137d97945e599',1,'flip::Pancake::get_points()'],['../classflip_1_1_strawberry.html#aefc0655172ff26a68aac68c111c9faf2',1,'flip::Strawberry::get_points()']]],

@@ -82,8 +82,8 @@ Inheritance diagram for flip::Gameover_Scene:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ab536068c054ad70eb23929120ff7cbae"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classflip_1_1_gameover___scene.html#ab536068c054ad70eb23929120ff7cbae">Gameover_Scene</a> ()</td></tr>
-<tr class="separator:ab536068c054ad70eb23929120ff7cbae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ac264c617c23d98be17306edfd6825b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classflip_1_1_gameover___scene.html#a6ac264c617c23d98be17306edfd6825b">Gameover_Scene</a> (int score, float time)</td></tr>
+<tr class="separator:a6ac264c617c23d98be17306edfd6825b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0175fdd827c5f2360d14d0c546fa8b49"><td class="memItemLeft" align="right" valign="top">basics::Size2u&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classflip_1_1_gameover___scene.html#a0175fdd827c5f2360d14d0c546fa8b49">get_view_size</a> () override</td></tr>
 <tr class="separator:a0175fdd827c5f2360d14d0c546fa8b49"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aff99735e1c7ec7d2a44b6b691a9f75bf"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classflip_1_1_gameover___scene.html#aff99735e1c7ec7d2a44b6b691a9f75bf">initialize</a> () override</td></tr>
@@ -100,8 +100,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:ae9268c4d2b873e07f1997c2fb246ac66"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="ab536068c054ad70eb23929120ff7cbae"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab536068c054ad70eb23929120ff7cbae">&#9670;&nbsp;</a></span>Gameover_Scene()</h2>
+<a id="a6ac264c617c23d98be17306edfd6825b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6ac264c617c23d98be17306edfd6825b">&#9670;&nbsp;</a></span>Gameover_Scene()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -109,12 +109,29 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">flip::Gameover_Scene::Gameover_Scene </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>score</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>time</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Sets the initial values of the scene when it is first loaded </p>
+<p>Sets the initial values of the scene when it is first loaded </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">score</td><td>Receives the final game score </td></tr>
+    <tr><td class="paramname">time</td><td>Receives the final game time </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
