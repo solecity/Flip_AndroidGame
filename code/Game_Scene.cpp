@@ -49,7 +49,8 @@ namespace flip
 
     bool Game_Scene::initialize ()
     {
-        state             = background.get () ? RUNNING : LOADING;
+        state = LOADING;
+        //state             = background.get () ? RUNNING : LOADING;
 
         gameplay          = UNINITIALIZED;
 
@@ -97,6 +98,9 @@ namespace flip
 
                             // Adds to the score total
                             score_counter += item->get_points();
+
+                            //Gameover_Scene * gameover_Scene = new Gameover_Scene;
+                            //gameover_Scene->set_score_counter(score_counter);
                         }
                     }
 
@@ -154,16 +158,16 @@ namespace flip
                         item->render (*canvas);
                     }
 
-                    life_icon->render   (*canvas);                           // Draws the lives icon
-                    score_icon->render   (*canvas);                          // Draws the score icon
-                    pause_button->render (*canvas);                          // Draws the pause button
 
                     if (state == PREPARE)
                     {
-                        // Loads the get ready sprite
-                        prepare->render (*canvas);
+                        prepare     ->render (*canvas);                          // Draws the get ready sprite
                     }
-                    else {
+                    else
+                    {
+                        life_icon   ->render (*canvas);                          // Draws the lives icon
+                        score_icon  ->render (*canvas);                          // Draws the score icon
+                        pause_button->render (*canvas);                          // Draws the pause button
 
                         wostringstream buffer_lifes;
                         wostringstream buffer_score;
@@ -182,9 +186,9 @@ namespace flip
                         Text_Layout score_text(*score_font, buffer_score.str ());
                         Text_Layout timer_text(*timer_font, buffer_timer.str ());
 
-                        canvas->draw_text ({ life_icon->get_width(), canvas_height - 50.f }, lives_text, CENTER);
-                        canvas->draw_text ({ score_icon->get_width() + life_icon->get_width() + 50.f , canvas_height - 50.f }, score_text, LEFT);
-                        canvas->draw_text ({ canvas_width / 2.f, canvas_height - 50.f }, timer_text, CENTER);
+                        canvas->draw_text ({ life_icon->get_width(), canvas_height - 50.f }, lives_text, CENTER);                                       // Writes the lives counter
+                        canvas->draw_text ({ score_icon->get_width() + life_icon->get_width() + 60.f , canvas_height - 50.f }, score_text, LEFT);       // Writes the score counter
+                        canvas->draw_text ({ canvas_width / 2.f, canvas_height - 50.f }, timer_text, CENTER);                                           // Writes the game timer
                     }
                 }
 
@@ -210,8 +214,8 @@ namespace flip
 
             canvas_width = unsigned(canvas_height * real_aspect_ratio);
 
-            background      = Texture_2D::create (ID(background),      context, background_path);
-            prepare_texture = Texture_2D::create (ID(prepare_texture), context, prepare_path);
+            background      = Texture_2D::create (ID(background),      context, background_path);         // Loads the background texture
+            prepare_texture = Texture_2D::create (ID(prepare_texture), context, prepare_path);            // Loads the get ready texture
 
             // Checks if the texture was loaded correctly
             if (background) {
@@ -332,13 +336,15 @@ namespace flip
 
                     lives_counter--;                // Removes one life
 
+                    if (lives_counter <= 0) {
+                        lives_counter = 0;
+
+                        gameplay = GAMEOVER;
+                    }
+
                     break;
                 }
             }
-        }
-
-        if (lives_counter <= 0) {
-            gameplay = GAMEOVER;
         }
     }
 
