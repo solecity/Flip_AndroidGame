@@ -98,9 +98,6 @@ namespace flip
 
                             // Adds to the score total
                             score_counter += item->get_points();
-
-                            //Gameover_Scene * gameover_Scene = new Gameover_Scene;
-                            //gameover_Scene->set_score_counter(score_counter);
                         }
                     }
 
@@ -194,7 +191,9 @@ namespace flip
 
                 if (gameplay == GAMEOVER)
                 {
-                    director.run_scene (shared_ptr< Scene > (new Gameover_Scene));                    // Goes to the gameover scene
+                    game_time_value = floor(game_timer.get_elapsed_seconds());
+
+                    director.run_scene (shared_ptr< Scene > (new Gameover_Scene(score_counter, game_time_value)));                    // Goes to the gameover scene
                 }
             }
         }
@@ -294,7 +293,7 @@ namespace flip
     void Game_Scene::run_simulation (float time)
     {
         // Avoids that the 1st item will jump too fast
-        if (time > 0.25F) return;
+        if (time > 0.25f) return;
 
         // The position of the whole food elements is updated
         for (auto & item : food)

@@ -65,6 +65,8 @@
             static const char *   gameover_path;                ///< Path of the gameover texture
             static const char *   button_path;                  ///< Path of the home button
             static const char *   buttons_atlas_path;           ///< Path of the buttons atlas
+            static const char *   text_atlas_path;              ///< Path of the gameover text atlas
+            static const char *   font_path;                    ///< Path of the font
 
             static const unsigned number_of_options = 1;        ///< Amount of options in the menu
 
@@ -82,16 +84,27 @@
             shared_ptr< Texture_2D >  gameover_texture;         ///< Texture with the gameover image
             shared_ptr< Texture_2D >  button_texture;           ///< Texture with the home button image
 
-            shared_ptr< Sprite >      home_button;              ///< Home button sprite
-
             unique_ptr< Atlas >       button_atlas;             ///< Atlas with the menu options images
+            unique_ptr< Atlas >       text_atlas;               ///< Atlas with the gameover text
+
+            shared_ptr< Sprite >      home_button;              ///< Home button sprite
+            shared_ptr< Sprite >      score_icon;               ///< Score sprite
+            shared_ptr< Sprite >      time_icon;                ///< Time sprite
+
+            unique_ptr< Raster_Font > score_font;               ///< Font to drawn the game score
+            unique_ptr< Raster_Font > timer_font;               ///< Font to drawn the game timer
+
+            int game_score;                                     ///< Final game score
+            int game_time;                                      ///< Final game time
 
         public:
 
             /**
              * Sets the initial values of the scene when it is first loaded
+             * @param score Receives the final game score
+             * @param time Receives the final game time
              */
-            Gameover_Scene ();
+            Gameover_Scene (int score, float time);
 
             /**
              * This method calls the Directory to know the screen resolution of the scene

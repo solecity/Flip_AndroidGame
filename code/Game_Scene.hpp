@@ -108,6 +108,7 @@
             Timer       spawn_timer;                                ///< Timer used to measure the time between food items being spwaned
 
             float       spawn_delay;                                ///< Amount of time require to pass between food being spwaned
+            float       game_time_value;                            ///< Final game time value
 
             int 		lives_counter;                              ///< Amount of lives the player has
             int 		score_counter;                              ///< Current game score

@@ -19,19 +19,24 @@ using namespace std;
 
 namespace flip
 {
-    const char * Gameover_Scene::gameover_path          = "menu-scene/gameover2.png";
+    const char * Gameover_Scene::gameover_path          = "menu-scene/gameover.png";
     const char * Gameover_Scene::button_path            = "menu-scene/home.png";
     const char * Gameover_Scene::buttons_atlas_path     = "menu-scene/buttons.sprites";
+    const char * Gameover_Scene::text_atlas_path        = "menu-scene/gameover.sprites";
+    const char * Gameover_Scene::font_path              = "game-scene/bubblegum.fnt";
 
 
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    Gameover_Scene::Gameover_Scene ()
+    Gameover_Scene::Gameover_Scene (int score, float time)
     {
         state         = LOADING;
 
         canvas_width  = 1280;
         canvas_height =  720;
+
+        game_score    = score;
+        game_time     = time;
 
         suspended     = true;
     }
@@ -141,6 +146,23 @@ namespace flip
                 {
                     configure_options ();
 
+                    // Loads the menu buttons atlas
+                    text_atlas.reset (new Atlas(text_atlas_path, context));
+
+                    // Loads the score icon
+                    score_icon.reset(new Sprite(text_atlas->get_slice (ID(score))));
+                    score_icon->set_position({ canvas_width / 2.f - 150.f, canvas_height / 2.f });
+
+                    // Loads the time icon
+                    time_icon.reset(new Sprite(text_atlas->get_slice (ID(time))));
+                    time_icon->set_position({ canvas_width / 2.f + 150.f, canvas_height / 2.f });
+
+                    // Creates the score counter
+                    score_font.reset (new Raster_Font(font_path, context));
+
+                    // Creates the game timer
+                    timer_font.reset (new Raster_Font(font_path, context));
+
                     state = READY;
                 }
             }
@@ -192,7 +214,24 @@ namespace flip
                     // The transformation applied to the options is restored so it does not affect subsequent drawings made with the same canvas
                     canvas->set_transform (Transformation2f());
 
-                    home_button->render(*canvas);
+                    home_button->render (*canvas);
+                    score_icon ->render (*canvas);
+                    time_icon  ->render (*canvas);
+
+                    wostringstream buffer_score;
+                    wostringstream buffer_timer;
+
+                    buffer_score << setfill (L'0');
+                    buffer_score << game_score;
+
+                    buffer_timer << setfill (L'0');
+                    buffer_timer << game_time;
+
+                    Text_Layout score_text(*score_font, buffer_score.str ());
+                    Text_Layout timer_text(*timer_font, buffer_timer.str ());
+
+                    canvas->draw_text ({ canvas_width / 2.f - 150.f, canvas_height / 2.f - 50.f }, score_text, CENTER);
+                    canvas->draw_text ({ canvas_width / 2.f + 150.f, canvas_height / 2.f - 50.f }, timer_text, CENTER);
                 }
             }
         }
