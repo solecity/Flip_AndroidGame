@@ -90,7 +90,7 @@
 
             /**
              * This method calls the Directory to know the screen resolution of the scene
-             * @return - size in coordinates that the scene is using
+             * @return size in coordinates that the scene is using
              */
             basics::Size2u get_view_size () override
             {
@@ -143,8 +143,8 @@
 
             /**
              * Returns the index of the option that is below the indicated point.
-             * @param point - Point that will be used to determine which option is below.
-             * @return - Index of the option that is below the point or -1 if there is none.
+             * @param point Point that will be used to determine which option is below.
+             * @return Index of the option that is below the point or -1 if there is none.
              */
             int option_at (const Point2f & point);
 

@@ -204,14 +204,14 @@ namespace flip
         for (auto & option : options) menu_height += option.slice->height;
 
         // The position of the top edge of the menu as a whole is calculated so that it is centered vertically
-        float option_top = canvas_height / 2.f + menu_height / 2.f - 50.f;
+        float option_top = canvas_height / 2.f + menu_height / 2.f - 30.f;
 
         // The position of the top edge of each option is set
         for (unsigned index = 0; index < number_of_options; ++index)
         {
             options[index].position = Point2f{ canvas_width / 2.f, option_top };
 
-            option_top -= options[index].slice->height;
+            option_top -= options[index].slice->height + 30.f;
         }
 
         // The pressure of each option is restored

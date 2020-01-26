@@ -39,6 +39,7 @@
             enum State
             {
                 LOADING,
+                PREPARE,
                 READY,
                 ERROR
             };
@@ -48,8 +49,7 @@
              */
             enum Option_Id
             {
-                PLAY_AGAIN,
-                MAIN_MENU
+                PLAY_AGAIN
             };
 
             /**
@@ -65,7 +65,6 @@
             static const char *   gameover_path;                ///< Path of the gameover texture
             static const char *   button_path;                  ///< Path of the home button
             static const char *   buttons_atlas_path;           ///< Path of the buttons atlas
-            static const char *   font_path;                    ///< Path of the font
 
             static const unsigned number_of_options = 1;        ///< Amount of options in the menu
 
@@ -87,12 +86,6 @@
 
             unique_ptr< Atlas >       button_atlas;             ///< Atlas with the menu options images
 
-            unique_ptr< Raster_Font > score_font;               ///< Font to drawn the game score
-            unique_ptr< Raster_Font > timer_font;               ///< Font to drawn the game timer
-
-            int      score_counter;                             ///< Final game score
-            int      game_timer;                                ///< Final game timer
-
         public:
 
             /**
@@ -102,7 +95,7 @@
 
             /**
              * This method calls the Directory to know the screen resolution of the scene
-             * @return - size in coordinates that the scene is using
+             * @return size in coordinates that the scene is using
              */
             basics::Size2u get_view_size () override
             {
@@ -155,41 +148,10 @@
 
             /**
              * Returns the index of the option that is below the indicated point.
-             * @param point - Point that will be used to determine which option is below.
-             * @return - Index of the option that is below the point or -1 if there is none.
+             * @param point Point that will be used to determine which option is below.
+             * @return index of the option that is below the point or -1 if there is none.
              */
             int option_at (const Point2f & point);
-
-            /**
-             * Gets the final game score
-             * @return score
-             */
-            int get_score_counter ()
-            {
-                return score_counter;
-            }
-
-            /**
-             * Gets the final game time
-             * @return game_timer
-             */
-            int get_game_timer ()
-            {
-                return game_timer;
-            }
-
-        public:
-
-            void set_score_counter (int new_score_counter)
-            {
-                score_counter = new_score_counter;
-            }
-
-            void set_game_timer (int new_game_timer)
-            {
-                game_timer = new_game_timer;
-            }
-
         };
     }
 

@@ -19,10 +19,9 @@ using namespace std;
 
 namespace flip
 {
-    const char * Gameover_Scene::gameover_path          = "menu-scene/gameover.png";
+    const char * Gameover_Scene::gameover_path          = "menu-scene/gameover2.png";
     const char * Gameover_Scene::button_path            = "menu-scene/home.png";
     const char * Gameover_Scene::buttons_atlas_path     = "menu-scene/buttons.sprites";
-    const char * Gameover_Scene::font_path              = "game-scene/bubblegum.fnt";
 
 
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -135,12 +134,14 @@ namespace flip
                 button_atlas.reset (new Atlas(buttons_atlas_path, context));
 
                 // If the atlas could be loaded then the state is READY if not the is ERROR
-                state = button_atlas->good () ? READY : ERROR;
+                state = button_atlas->good () ? PREPARE : ERROR;
 
                 // If the atlas is available, the menu option data is initialized
-                if (state == READY)
+                if (state == PREPARE)
                 {
                     configure_options ();
+
+                    state = READY;
                 }
             }
         }
@@ -192,21 +193,6 @@ namespace flip
                     canvas->set_transform (Transformation2f());
 
                     home_button->render(*canvas);
-/*
-                    wostringstream buffer_score;
-                    wostringstream buffer_timer;
-
-                    buffer_score << setfill (L'0');
-                    buffer_score << score_counter;
-
-                    buffer_timer << setfill (L'0');
-                    buffer_timer << floor(game_timer);
-
-                    Text_Layout score_text(*score_font, buffer_score.str ());
-                    Text_Layout timer_text(*timer_font, buffer_timer.str ());
-
-                    canvas->draw_text ({ canvas_width + 50.f , canvas_height - 50.f }, score_text, CENTER);
-                    canvas->draw_text ({ canvas_width / 2.f, canvas_height - 50.f }, timer_text, CENTER);*/
                 }
             }
         }
@@ -226,7 +212,7 @@ namespace flip
         for (auto & option : options) menu_height += option.slice->height;
 
         // The position of the top edge of the menu as a whole is calculated so that it is centered vertically
-        float option_top = canvas_height / 2.f - menu_height / 1.5f;
+        float option_top = canvas_height / 2.f - menu_height;
 
         // The position of the top edge of each option is set
         for (unsigned index = 0; index < number_of_options; ++index)

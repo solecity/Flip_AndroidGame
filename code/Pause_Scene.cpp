@@ -16,7 +16,7 @@ using namespace std;
 
 namespace flip
 {
-    const char * Pause_Scene::pause_path             = "menu-scene/pause.png";
+    const char * Pause_Scene::pause_path             = "menu-scene/pause_menu.png";
     const char * Pause_Scene::button_path            = "menu-scene/home.png";
     const char * Pause_Scene::buttons_atlas_path     = "menu-scene/buttons.sprites";
 
@@ -66,16 +66,16 @@ namespace flip
 
                     int option_touched = option_at (touch_position);
 
-                    // Only one option can be touched at a time (to avoid multiple selections), so only one is considered pressed (the rest are "released")
-                    for (int index = 0; index < number_of_options; ++index)
-                    {
-                        options[index].is_pressed = index == option_touched;
-                    }
-
                     // Checks if button is being pressed
                     if (home_button->contains (touch_position))
                     {
                         director.run_scene (shared_ptr< Scene > (new Menu_Scene));               // Returns to the menu scene
+                    }
+
+                    // Only one option can be touched at a time (to avoid multiple selections), so only one is considered pressed (the rest are "released")
+                    for (int index = 0; index < number_of_options; ++index)
+                    {
+                        options[index].is_pressed = index == option_touched;
                     }
 
                     break;
@@ -93,16 +93,6 @@ namespace flip
                     if (option_at (touch_position) == PLAY_AGAIN)
                     {
                         director.run_scene (shared_ptr< Scene > (new Game_Scene));           // Goes to the game scene
-                    }
-                    else if (option_at (touch_position) == MAIN_MENU)
-                    {
-                        director.run_scene (shared_ptr< Scene > (new Menu_Scene));           // Goes to the menu scene
-                    }
-
-                    // Checks if button is being pressed
-                    if (home_button->contains (touch_position))
-                    {
-                        director.run_scene (shared_ptr< Scene > (new Menu_Scene));               // Returns to the menu scene
                     }
 
                     break;

@@ -69,7 +69,7 @@
 
             /**
              * This method calls the Directory to know the screen resolution of the scene
-             * @return - size in coordinates that the scene is using
+             * @return size in coordinates that the scene is using
              */
             basics::Size2u get_view_size () override
             {
