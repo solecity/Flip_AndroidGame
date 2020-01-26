@@ -20,7 +20,7 @@ namespace flip
 
 		/**
          * Launches a new instance of Strawberry
-         * @param atlas  -  Points to the sprites atlas. It must not be nullptr
+         * @param atlas Points to the sprites atlas. It must not be nullptr
          */
 		Strawberry (Atlas * atlas);
 

@@ -42,20 +42,20 @@ namespace flip
 
 		/**
          * Launches a new instance of Food
-         * @param atlas  -  Points to the sprites atlas. It must not be nullptr
-         * @param radius -  Sets the radius of the collider
+         * @param atlas Points to the sprites atlas. It must not be nullptr
+         * @param radius Sets the radius of the collider
          */
 	    Food(Atlas * atlas, float radius);
 
 		/**
          * Destroys the food elements
-         * @return - the current position
+         * @return the current position
          */
 		virtual ~Food() = default;
 
 		/**
          * This method gets the position of a food element
-         * @return - the current position
+         * @return the current position
          */
 		const Point2f & get_position() const
 		{
@@ -64,7 +64,7 @@ namespace flip
 
 		/**
          * This method gets the left position (in x) of an element
-         * @return - left x position
+         * @return left x position
          */
 		float get_left_x () const
 		{
@@ -76,7 +76,7 @@ namespace flip
 
 		/**
          * This method gets the right position (in x) of an element
-         * @return - right x position
+         * @return right x position
          */
 		float get_right_x () const
 		{
@@ -85,7 +85,7 @@ namespace flip
 
 		/**
          * This method gets the bottom position (in y) of an element
-         * @return - bottom y position
+         * @return bottom y position
          */
 		float get_bottom_y () const
 		{
@@ -97,7 +97,7 @@ namespace flip
 
 		/**
          * This method gets the top position (in y) of an element
-         * @return - top y position
+         * @return top y position
          */
 		float get_top_y () const
 		{
@@ -106,7 +106,7 @@ namespace flip
 
 		/**
          * This method gets the speed of a food element
-         * @return - the current speed
+         * @return the current speed
          */
 		const Vector2f & get_speed() const
 		{
@@ -124,7 +124,7 @@ namespace flip
 
 		/**
          * This method gets the points amount of a food element
-         * @return - the amount of points
+         * @return the amount of points
          */
 		virtual int get_points () {
 			return 0;
@@ -132,7 +132,7 @@ namespace flip
 
 		/**
          * This method applies a force to the speed in y
-         * @param force - Force added to the current speed
+         * @param force Force added to the current speed
          */
         void apply_force (float force)
         {
@@ -141,7 +141,7 @@ namespace flip
 
 		/**
          * This method applies an impulse to the speed in y
-         * @param impulse - Impulse added to the current speed
+         * @param impulse Impulse added to the current speed
          */
         void apply_impulse (float impulse)
         {
@@ -160,7 +160,7 @@ namespace flip
 
 		/**
          * This method checks if the food element contains the given point
-         * @param point - Point that will be used to determine if a food element was clicked
+         * @param point Point that will be used to determine if a food element was clicked
          */
 		bool contains_point (const Point2f & point);
 

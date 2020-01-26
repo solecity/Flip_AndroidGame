@@ -17,7 +17,8 @@ namespace flip
 
     Sprite::Sprite(Texture_2D * texture)
     :
-            texture (texture)
+            texture (texture),
+            slice   (nullptr)
     {
         anchor   = basics::CENTER;
         size     = { texture->get_width (), texture->get_height () };
@@ -29,7 +30,8 @@ namespace flip
 
     Sprite::Sprite(const Atlas::Slice * slice)
     :
-            slice  (slice)
+            texture(nullptr),
+            slice  (slice  )
     {
         anchor   = basics::CENTER;
         size     = { slice->width, slice->height };

@@ -31,17 +31,17 @@
         {
         protected:
 
-            Texture_2D   * texture;                 ///< Textura en la que está la imagen del sprite (cuando no hay slice de atlas).
+            Texture_2D         * texture;                 ///< Textura en la que está la imagen del sprite (cuando no hay slice de atlas).
             const Atlas::Slice * slice;                   ///< Slice de atlas en la que está la imagen del sprite (cuando no hay textura).
-            int            anchor;                  ///< Indica qué punto de la textura se colocará en 'position' (x,y).
+            int                  anchor;                  ///< Indica qué punto de la textura se colocará en 'position' (x,y).
 
-            Size2f         size;                    ///< Tamaño del sprite (normalmente en coordenadas virtuales).
-            Point2f        position;                ///< Posición del sprite (normalmente en coordenadas virtuales).
-            float          scale;                   ///< Escala el tamaño del sprite. Por defecto es 1.
+            Size2f               size;                    ///< Tamaño del sprite (normalmente en coordenadas virtuales).
+            Point2f              position;                ///< Posición del sprite (normalmente en coordenadas virtuales).
+            float                scale;                   ///< Escala el tamaño del sprite. Por defecto es 1.
 
-            Vector2f       speed;                   ///< Velocidad a la que se mueve el sprite. Usar el valor por defecto (0,0) para dejarlo quieto.
+            Vector2f             speed;                   ///< Velocidad a la que se mueve el sprite. Usar el valor por defecto (0,0) para dejarlo quieto.
 
-            bool           visible;                 ///< Indica si el sprite se debe actualizar y dibujar o no. Por defecto es true.
+            bool                 visible;                 ///< Indica si el sprite se debe actualizar y dibujar o no. Por defecto es true.
 
         public:
 
