@@ -44,5 +44,5 @@ void keep_links ()
     Graphics_Resource_Cache cache;
     opengles::Context::create(window, &cache);
     Canvas::Factory f = opengles::Canvas_ES2::create;
-    Texture_2D::register_factory (0 ,0 );
+    Texture_2D::register_factory (0, 0);
 }
